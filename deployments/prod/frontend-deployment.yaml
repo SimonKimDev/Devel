@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devel-webui
+  namespace: devel-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: devel-webui
+  template:
+    metadata:
+      labels:
+        app: devel-webui
+    spec:
+      containers:
+      - name: devel-webui
+        image: develcontainerregistry.azurecr.io/simonk-devel-webui:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.25"
+            memory: "256Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+
+

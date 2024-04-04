@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devel-webui-service
+  namespace: devel-prod
+spec:
+  type: LoadBalancer
+  selector:
+    app: devel-webui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

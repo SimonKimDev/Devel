@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  blog-engine-backend:
+    build:
+      context: ../../blog-engine
+      dockerfile: Dockerfile
+    ports:
+      - "18080:18080"
+    environment:
+      - EXAMPLE_ENV_VAR=value
+
+  devel-frontend:
+    build:
+      context: ../../devel-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "15980:80"
+    depends_on:
+      - blog-engine-backend
