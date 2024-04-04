@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [message, setMessage] = useState('');
   const fetchMessage = () => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/message`)
+    fetch("www.thesimonkim.com/api/message")
     .then(response => response.json())
       .then(data => setMessage(data.message))
       .catch(error => console.error("There was an error!", error));
