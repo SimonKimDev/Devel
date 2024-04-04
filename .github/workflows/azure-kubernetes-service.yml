@@ -55,11 +55,11 @@ jobs:
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push simonk-devel-webui image to ACR
         run: |
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME_FRONTEND }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} --file devel-frontend/Dockerfile ./devel-frontend
+          az acr build --image $AZURE_CONTAINER_REGISTRY/$CONTAINER_NAME_FRONTEND:$github.sha --registry $AZURE_CONTAINER_REGISTRY --file devel-frontend/Dockerfile ./devel-frontend
 
       - name: Build and push backend image to ACR
         run: |
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME_BACKEND }}:${{ github.sha }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} --file blog-engine/Dockerfile ./blog-engine
+          az acr build --image $AZURE_CONTAINER_REGISTRY/$CONTAINER_NAME_BACKEND:$github.sha --registry $AZURE_CONTAINER_REGISTRY --file blog-engine/Dockerfile ./blog-engine
 
   deploy:
     permissions:
@@ -90,13 +90,13 @@ jobs:
       - name: Get K8s context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
-          cluster-name: ${{ env.CLUSTER_NAME }}
+          resource-group: $RESOURCE_GROUP
+          cluster-name: $CLUSTER_NAME
           admin: 'false'
           use-kubelogin: 'true'
           
       - name: Deploy to AKS
         run: |
-          kubectl apply -f ${{ env.DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
-          kubectl apply -f ${{ env.DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
+          kubectl apply -f $DEPLOYMENT_MANIFEST_PATH/backend-deployment.yaml
+          kubectl apply -f $DEPLOYMENT_MANIFEST_PATH/frontend-deployment.yaml
           # Add any additional kubectl commands here
