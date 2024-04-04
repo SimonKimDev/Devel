@@ -120,3 +120,8 @@ jobs:
           manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
           images: |
             ${{ vars.AZURE_CONTAINER_REGISTRY }}/${{ vars.CONTAINER_NAME_FRONTEND }}:latest
+
+      - name: Force Rollout By Restarting
+        run: | 
+          kubectl rollout restart deployment devel-blog-engine
+          kubectl rollout restart deployment devel-webui
