@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [message, setMessage] = useState('');
   const fetchMessage = () => {
-    fetch("www.thesimonkim.com/api/message")
+    fetch("/api/message")
     .then(response => response.json())
       .then(data => setMessage(data.message))
       .catch(error => console.error("There was an error!", error));
