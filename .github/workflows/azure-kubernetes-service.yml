@@ -97,6 +97,7 @@ jobs:
           
       - name: Deploy to AKS
         run: |
-          kubectl apply -f ${{ vars.DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
-          kubectl apply -f ${{ vars.DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
-          # Add any additional kubectl commands here
+          kubectl apply -f ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
+          kubectl apply -f ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
+          kubectl apply -f ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-service.yaml
+          kubectl apply -f ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-service.yaml
