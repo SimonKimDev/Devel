@@ -100,6 +100,7 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           action: deploy
+          namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
           manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
           images: |
             ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }}
@@ -109,6 +110,7 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           action: deploy
+          namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
           manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
           images: |
             ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }}
