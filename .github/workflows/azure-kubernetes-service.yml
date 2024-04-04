@@ -95,6 +95,9 @@ jobs:
           admin: 'false'
           use-kubelogin: 'true'
 
+      - name: Update deployment manifest
+        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }}|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
+    
       # Deploys applications based on given manifest files
       - name: Deploys backend application
         uses: Azure/k8s-deploy@v4
@@ -105,12 +108,15 @@ jobs:
           images: |
             ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }}
 
+      - name: Update deployment manifest
+        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }}|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
+    
       # Deploys applications based on given manifest files
       - name: Deploys frontend application
         uses: Azure/k8s-deploy@v4
         with:
           action: deploy
           namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
-          manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
+          manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
           images: |
             ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }}
