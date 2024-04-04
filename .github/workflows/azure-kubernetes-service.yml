@@ -97,21 +97,7 @@ jobs:
     
       - name: Update backend deployment manifest 
         run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
-  
-      # Deploys applications based on given manifest files
-      - name: Deploys backend application
-        uses: Azure/k8s-deploy@v4
-        with:
-          action: deploy
-          namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
-          manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
-          images: |
-            ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:latest
-          imagepullsecrets: |
-            ${{ vars.IMAGE_PULL_SECRET }}
-       
-      - name: Update frontend deployment manifest
-        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
+             sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
 
       - name: Deploy to AKS
         run: |
