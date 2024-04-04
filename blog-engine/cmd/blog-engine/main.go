@@ -32,7 +32,7 @@ func main() {
 	{
 		apiroute.GET("/message", func(c *gin.Context) {
 			c.JSON(200, gin.H{
-				"message": "Hello World! This is a message from the backend.",
+				"message": "Lets Test if deployment automation is successful: This is a message from the backend.",
 			})
 		})
 	}
