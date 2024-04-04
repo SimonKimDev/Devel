@@ -55,11 +55,11 @@ jobs:
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push simonk-devel-webui image to ACR
         run: |
-          az acr build --image ${{ vars.AZURE_CONTAINER_REGISTRY }}/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }} --registry ${{ vars.AZURE_CONTAINER_REGISTRY }} --file devel-frontend/Dockerfile ./devel-frontend
+          az acr build --image ${{ vars.AZURE_CONTAINER_REGISTRY }}/${{ vars.CONTAINER_NAME_FRONTEND }}:latest --registry ${{ vars.AZURE_CONTAINER_REGISTRY }} --file devel-frontend/Dockerfile ./devel-frontend
 
       - name: Build and push backend image to ACR
         run: |
-          az acr build --image ${{ vars.AZURE_CONTAINER_REGISTRY }}/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }} --registry ${{ vars.AZURE_CONTAINER_REGISTRY }} --file blog-engine/Dockerfile ./blog-engine
+          az acr build --image ${{ vars.AZURE_CONTAINER_REGISTRY }}/${{ vars.CONTAINER_NAME_BACKEND }}:latest --registry ${{ vars.AZURE_CONTAINER_REGISTRY }} --file blog-engine/Dockerfile ./blog-engine
 
   deploy:
     permissions:
@@ -94,10 +94,10 @@ jobs:
           cluster-name: ${{ vars.CLUSTER_NAME }}
           admin: 'false'
           use-kubelogin: 'true'
-
-      - name: Update deployment manifest
-        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }}|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
     
+      - name: Update backend deployment manifest 
+        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
+  
       # Deploys applications based on given manifest files
       - name: Deploys backend application
         uses: Azure/k8s-deploy@v4
@@ -106,11 +106,13 @@ jobs:
           namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
           manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
           images: |
-            ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:${{ github.sha }}
+            ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:latest
+          imagepullsecrets: |
+            ${{ vars.IMAGE__PULL_SECRET }}
+       
+      - name: Update frontend deployment manifest
+        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
 
-      - name: Update deployment manifest
-        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }}|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
-    
       # Deploys applications based on given manifest files
       - name: Deploys frontend application
         uses: Azure/k8s-deploy@v4
@@ -119,4 +121,6 @@ jobs:
           namespace: ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
           manifests: ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
           images: |
-            ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:${{ github.sha }}
+            ${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest
+          imagepullsecrets: |
+            ${{ vars.IMAGE__PULL_SECRET }}

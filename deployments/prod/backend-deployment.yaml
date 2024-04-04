@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: devel-blog-engine
-        image:  IMAGE_PLACEHOLDER
+        image: IMAGE_PLACEHOLDER
         ports:
         - containerPort: 18080
         resources:
