@@ -97,7 +97,9 @@ jobs:
     
       - name: Update backend deployment manifest 
         run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_BACKEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/backend-deployment.yaml
-             sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
+      
+      - name: Update frontend deployment manifest
+        run: sed -i "s|IMAGE_PLACEHOLDER|${{ vars.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ vars.CONTAINER_NAME_FRONTEND }}:latest|g" ${{ vars.PROD_DEPLOYMENT_MANIFEST_PATH }}/frontend-deployment.yaml
 
       - name: Deploy to AKS
         run: |
