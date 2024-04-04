@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: devel-webui
-        image: develcontainerregistry.azurecr.io/simonk-devel-webui:latest
+        image: <registry-name>/<image-name>:<tag>
         ports:
         - containerPort: 80
         resources:

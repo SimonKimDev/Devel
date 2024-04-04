@@ -17,3 +17,4 @@ services:
       - "15980:80"
     depends_on:
       - blog-engine-backend
+  

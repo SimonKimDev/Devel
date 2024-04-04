@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: devel-blog-engine
-        image: develcontainerregistry.azurecr.io/simonk-devel-blog-engine:latest
+        image:  <registry-name>/<image-name>:<tag>
         ports:
         - containerPort: 18080
         resources:
