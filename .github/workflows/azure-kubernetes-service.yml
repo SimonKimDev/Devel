@@ -123,5 +123,5 @@ jobs:
 
       - name: Force Rollout By Restarting
         run: | 
-          kubectl rollout restart deployment devel-blog-engine
-          kubectl rollout restart deployment devel-webui
+          kubectl rollout restart deployment devel-blog-engine --namespace ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
+          kubectl rollout restart deployment devel-webui --namespace ${{ vars.DEVEL_KUBERNETES_PROD_NAMESPACE }}
