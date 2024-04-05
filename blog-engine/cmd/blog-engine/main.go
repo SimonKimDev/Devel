@@ -9,15 +9,29 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
-		if origin == "https://www.thesimonkim.com" || origin == "https://thesimonkim.com" {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 
+		// List of allowed origins
+		allowedOrigins := map[string]bool{
+			"https://www.thesimonkim.com": true,
+			"https://thesimonkim.com":     true,
+			"http://localhost:3000":       true, // Allow localhost for development
+		}
+
+		// Set headers for allowed origins
+		if _, exists := allowedOrigins[origin]; exists {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+		}
+
+		// Handle preflight OPTIONS request
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
+			if _, exists := allowedOrigins[origin]; exists {
+				c.AbortWithStatus(http.StatusNoContent)
+			} else {
+				c.AbortWithStatus(http.StatusForbidden)
+			}
 			return
 		}
 
