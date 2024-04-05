@@ -46,7 +46,7 @@ func main() {
 	{
 		apiroute.GET("/message", func(c *gin.Context) {
 			c.JSON(200, gin.H{
-				"message": "Lets Test if deployment automation is successful: This is a message from the backend.",
+				"message": "Lets Test one last time if the deployment automation is successful: This is a message from the backend.",
 			})
 		})
 	}
