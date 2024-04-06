@@ -4,6 +4,7 @@
 projectRoot=$(dirname "$(realpath "$0")")
 frontendPath="$projectRoot/devel-frontend"
 backendPath="$projectRoot/blog-engine/cmd/blog-engine/"
+export REACT_APP_API_BASE_URL=http://localhost:3000/api
 
 # Start the Go backend server
 echo "Starting the Go backend server..."
