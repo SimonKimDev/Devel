@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { AuthProvider } from '../../hooks/useAuth';
+import { msalInstance } from '../../services/authentication/msalConfig';
 import Login from '../auth/Login'
 
 
@@ -14,6 +15,25 @@ function App() {
       .catch(error => console.error("There was an error!", error));
   };
 
+  useEffect(() => {
+    const initializeMsal = async () => {
+      try {
+        await msalInstance.initialize();
+        await msalInstance.handleRedirectPromise()
+          .then((tokenResponse) => {
+            console.log(tokenResponse);
+          })
+          .catch((error) => {
+            console.error("Error handling redirect:", error);
+          });
+      } catch (error) {
+        console.error("Error initializing MSAL:", error);
+      }
+    };
+    initializeMsal();
+    // The empty dependency array ensures this runs once on mount
+  }, []);
+  
   return (
     <div className="App">
       <header className="App-header">

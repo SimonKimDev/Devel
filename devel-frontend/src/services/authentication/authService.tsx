@@ -1,17 +1,45 @@
 import { msalInstance } from './msalConfig';
-import { AuthenticationResult, PopupRequest, RedirectRequest } from '@azure/msal-browser';
+import { AuthenticationResult, EndSessionRequest, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 
-export const signIn = (method: "popup" | "redirect" = "popup"): Promise<AuthenticationResult | null> => {
-  const request: PopupRequest | RedirectRequest = {
-    scopes: ["User.Read"]
-  };
+// Initialize a listener variable
+let authStateListener: ((isAuthenticated: boolean) => void) | null = null;
 
-  if (method === "popup") {
-    return msalInstance.loginPopup(request);
-  } else {
-    msalInstance.loginRedirect(request);
-    return Promise.resolve(null); // Redirect does not return a response
+// Method to register a listener
+export const onAuthStateChanged = (listener: (isAuthenticated: boolean) => void) => {
+  authStateListener = listener;
+};
+
+const notifyAuthStateChanged = () => {
+  const isAuthenticated = msalInstance.getAllAccounts().length > 0;
+  if (authStateListener) {
+    authStateListener(isAuthenticated);
   }
 };
 
-// Add more methods (signOut, acquireToken, etc.) as needed
+export const signIn = async (method: "popup" | "redirect" = "popup"): Promise<void> => {
+  const request: PopupRequest | RedirectRequest = {
+    scopes: ["User.Read"],
+    prompt: "login"
+  };
+
+  try {
+    if (method === "popup") {
+      msalInstance.loginPopup(request);
+    } else {
+      msalInstance.loginRedirect(request);
+    }
+
+    notifyAuthStateChanged();
+  }
+  catch (error) {
+    console.error(error);
+  }
+};
+
+export const signOut = (): void => {
+  const logoutRequest: EndSessionRequest= {
+    postLogoutRedirectUri: window.location.origin
+  }
+  msalInstance.logoutRedirect(logoutRequest);
+  notifyAuthStateChanged();
+};
