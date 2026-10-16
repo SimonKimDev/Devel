@@ -31,7 +31,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   2. Deploys `main.bicep` with that image.
   3. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
 
-  It doesn't rerun tests: the `main` ruleset (below) only lets tested code land.
+  It doesn't rerun tests: the `main` ruleset (below) requires CI to pass first. If you bypass it with red checks, that commit deploys anyway.
 
   Each step runs only when its part changed. The infra step watches `main.bicep`, `main.bicepparam` and `modules/` only, so edits to this README, `bootstrap.bicep` or `budget.bicep` don't redeploy anything. A change to `deploy.yml` itself runs all three.
   
@@ -43,9 +43,9 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 
 The repo is public, which is what makes these free.
 
-- **`Protect main` ruleset** (Settings → Rules), with no bypass, so it applies to admins too:
-  - Changes reach `main` only through a PR. No approval is needed, since it's a solo repo.
-  - The CI checks `changes`, `frontend-build`, `frontend-test`, `api-build`, `api-test` and `infra` must pass, on a branch that's up to date with `main`. Jobs skipped by the path filter count as passed.
+- **`Protect main` ruleset** (Settings → Rules). Repo admins can bypass it, so you can still push or merge anything; GitHub just warns you first. Loose on purpose while the site changes fast:
+  - Changes reach `main` through a PR. No approval is needed, since it's a solo repo.
+  - The CI checks `changes`, `frontend-build`, `frontend-test`, `api-build`, `api-test` and `infra` must pass. The branch doesn't need to be up to date with `main`. Jobs skipped by the path filter count as passed.
   - Force-pushes to `main` and deleting it are blocked.
 - **Security** (Settings → Code security): Dependabot alerts and security-update PRs, secret scanning with push protection, and CodeQL default setup.
 
