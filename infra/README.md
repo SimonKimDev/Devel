@@ -16,7 +16,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 
 - `bootstrap.bicep`: one-time, subscription scope. Creates the resource group and the identity GitHub Actions signs in as (Contributor on the RG only, plus a tiny custom role at subscription scope that can only read `Microsoft.Web/locations/*` operation status; without it, deploys that touch the SWA custom domain hang forever).
 - `budget.bicep`: one-time, subscription scope. $25/month cost budget that emails at 80% and 100% of actual spend, and when the month is forecast to go over.
-- `main.bicep` + `main.bicepparam`: the app hosting. Deployed by `.github/workflows/deploy.yml` on every push to `main`.
+- `main.bicep` + `main.bicepparam`: the app hosting. Deployed by `.github/workflows/deploy.yml` on pushes to `main` that change them or `modules/`.
 - `modules/`: Static Web App, Container App (+ environment + logs), GitHub OIDC identity.
 - `web/staticwebapp.config.json`: SPA routing fallback and headers for Static Web Apps.
 
@@ -30,9 +30,12 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   1. Pushes the API image to GHCR.
   2. Deploys `main.bicep` with that image.
   3. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
+
+  Each step runs only when its part changed. The infra step watches `main.bicep`, `main.bicepparam` and `modules/` only, so edits to this README, `bootstrap.bicep` or `budget.bicep` don't redeploy anything. A change to `deploy.yml` itself runs all three.
   
   The Bicep deployment (`devel-main`) is the source of truth for names and URLs; later jobs read its outputs. Infra-only changes keep the image the Container App is actually running, read from Azure, so a failed or cancelled deploy can't fall back to the placeholder.
 - **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. The API and sign-in won't work there, because the preview origin isn't allowed by CORS or Entra.
+- **Dependabot** (`.github/dependabot.yml`): once a month, opens one grouped PR that bumps the GitHub Actions used by the workflows and the `build-frontend` action. Dependabot PRs get no Actions secrets, so the jobs that sign in to Azure (infra what-if, frontend preview) are skipped on them. A bad bump to an Azure action shows up in the Deploy run after merge; revert the PR to recover.
 
 ## One-time setup (already done once; repeat only for a new subscription)
 

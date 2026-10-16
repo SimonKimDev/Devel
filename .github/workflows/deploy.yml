@@ -42,7 +42,9 @@ jobs:
               - 'blog-engine/**'
               - '.github/workflows/deploy.yml'
             infra:
-              - 'infra/**'
+              - 'infra/main.bicep'
+              - 'infra/main.bicepparam'
+              - 'infra/modules/**'
               - '.github/workflows/deploy.yml'
 
   api-image:

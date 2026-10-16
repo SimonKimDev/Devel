@@ -104,7 +104,10 @@ jobs:
 
   infra-what-if:
     needs: [changes, infra]
-    if: github.event_name == 'pull_request' && needs.changes.outputs.infra == 'true'
+    # Dependabot PRs get no Actions secrets, so they can't sign in to Azure.
+    if: >-
+      github.event_name == 'pull_request' && needs.changes.outputs.infra == 'true' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
