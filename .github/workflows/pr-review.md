@@ -1,5 +1,5 @@
 ---
-description: Reviews each new pull request with the pr-reviewer agent and posts inline review comments.
+description: Reviews each new pull request with two reviewers on different models and posts inline review comments.
 
 on:
   pull_request:
@@ -13,14 +13,17 @@ permissions:
   contents: read
   pull-requests: read
 
-engine: copilot
+engine:
+  id: copilot
+  # The lead merges and verifies; the reviewers' models are set in shared/pr-review.md.
+  model: claude-sonnet-5.5
 
 imports:
   - shared/pr-review.md
 
-timeout-minutes: 20
+timeout-minutes: 40
 ---
 
 # PR review
 
-Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}, following the pr-reviewer instructions and the steps below.
+Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}, following the steps below.
