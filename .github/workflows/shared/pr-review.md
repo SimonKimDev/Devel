@@ -8,6 +8,8 @@ tools:
     toolsets: [pull_requests, repos]
 
 safe-outputs:
+  # A failed or cancelled review already leaves pr-review pending, so no issue is needed.
+  report-failure-as-issue: false
   create-pull-request-review-comment:
     max: 15
     side: "RIGHT"
