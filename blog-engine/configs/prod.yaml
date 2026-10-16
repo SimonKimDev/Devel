@@ -1,0 +1,17 @@
+# Production (Azure Container Apps). Used when APP_ENV=prod, which the Dockerfile sets.
+environment: "prod"
+server:
+  host: "0.0.0.0"
+  port: "18080" # must match apiTargetPort in infra/main.bicepparam
+  allowed_origins: [] # Container Apps ingress applies CORS in production
+database:
+  # Off until the Container App has an identity with Key Vault and Postgres access.
+  # Set AZURE_CLIENT_ID on the container to use a user-assigned identity.
+  enabled: false
+  db_url_secret_key: "dbconnectionstring" # Key Vault secret holding the Postgres host
+  db_name_secret_key: "dbcoffeechat"
+  db_user_secret_key: "postgresdbuser"
+  aad_scope: "https://ossrdbms-aad.database.windows.net/.default"
+  port: 5432
+azure:
+  keyvaulturl: "https://develkeyvault.vault.azure.net"

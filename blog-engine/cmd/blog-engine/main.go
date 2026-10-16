@@ -1,55 +1,124 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"errors"
+	"fmt"
+	"log"
+	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/SimonKimDev/Devel/blog-engine/internal/api/routes"
+	"github.com/SimonKimDev/Devel/blog-engine/internal/application"
+	"github.com/SimonKimDev/Devel/blog-engine/internal/domain"
+	"github.com/SimonKimDev/Devel/blog-engine/internal/infra/config"
+	"github.com/SimonKimDev/Devel/blog-engine/internal/infra/db"
 )
 
-func CORSMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
+const (
+	appEnvVar          = "APP_ENV"
+	dbConnectTimeout   = 30 * time.Second
+	shutdownTimeout    = 10 * time.Second
+	readHeaderTimeout  = 5 * time.Second
+	readWriteTimeout   = 15 * time.Second
+	keepAliveIdleLimit = 60 * time.Second
+)
 
-		// List of allowed origins
-		allowedOrigins := map[string]bool{
-			"https://www.thesimonkim.com": true,
-			"https://thesimonkim.com":     true,
-			"http://localhost:3000":       true, // Allow localhost for development
-		}
-
-		// Set headers for allowed origins
-		if _, exists := allowedOrigins[origin]; exists {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-		}
-
-		// Handle preflight OPTIONS request
-		if c.Request.Method == "OPTIONS" {
-			if _, exists := allowedOrigins[origin]; exists {
-				c.AbortWithStatus(http.StatusNoContent)
-			} else {
-				c.AbortWithStatus(http.StatusForbidden)
-			}
-			return
-		}
-
-		c.Next()
+func main() {
+	err := run()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
-func main() {
-	router := gin.Default()
-	router.Use(CORSMiddleware())
-	apiroute := router.Group("/api")
-	{
-		apiroute.GET("/message", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "Lets Test one last time if the deployment automation is successful: This is a message from the backend.",
-			})
-		})
+func run() error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	workDir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("get working directory: %w", err)
 	}
 
-	router.Run(":18080")
+	cfgPath := config.Path(workDir, os.Getenv(appEnvVar))
+
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("loaded config %s (env %q)", cfgPath, cfg.Env)
+
+	var postSvc application.BlogPoster
+
+	if cfg.Database.Enabled {
+		database, err := connectDatabase(ctx, cfg)
+		if err != nil {
+			return err
+		}
+
+		defer database.Close()
+
+		postSvc = application.NewPostService(database)
+	} else {
+		log.Print("database disabled; blog post routes are not registered")
+	}
+
+	server := &http.Server{
+		Addr:              net.JoinHostPort(cfg.Server.Host, cfg.Server.Port),
+		Handler:           routes.NewRouter(postSvc, cfg.Server.AllowedOrigins),
+		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readWriteTimeout,
+		WriteTimeout:      readWriteTimeout,
+		IdleTimeout:       keepAliveIdleLimit,
+	}
+
+	serveErr := make(chan error, 1)
+
+	go func() {
+		log.Printf("listening on %s", server.Addr)
+		serveErr <- server.ListenAndServe()
+	}()
+
+	select {
+	case err := <-serveErr:
+		return fmt.Errorf("serve HTTP: %w", err)
+	case <-ctx.Done():
+	}
+
+	log.Print("shutting down")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	err = server.Shutdown(shutdownCtx)
+	if err != nil {
+		return fmt.Errorf("shut down HTTP server: %w", err)
+	}
+
+	err = <-serveErr
+	if !errors.Is(err, http.ErrServerClosed) {
+		return fmt.Errorf("serve HTTP: %w", err)
+	}
+
+	return nil
+}
+
+func connectDatabase(ctx context.Context, cfg *domain.Config) (*sql.DB, error) {
+	connectCtx, cancel := context.WithTimeout(ctx, dbConnectTimeout)
+	defer cancel()
+
+	database, err := db.InitDatabase(connectCtx, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("connect to database: %w", err)
+	}
+
+	log.Print("connected to database")
+
+	return database, nil
 }

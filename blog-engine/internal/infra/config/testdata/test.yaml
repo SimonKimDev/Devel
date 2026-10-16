@@ -1,0 +1,16 @@
+##### ONLY FOR UNIT TESTING PURPOSES #####
+environment: "test"
+server:
+  host: "1.2.3.4"
+  port: "567"
+  allowed_origins:
+    - "http://localhost:3000"
+database:
+  enabled: true
+  db_url_secret_key: "test_connection_string"
+  db_name_secret_key: "test_db"
+  db_user_secret_key: "test_user"
+  aad_scope: "http://test.com"
+  port: 5432
+azure:
+  keyvaulturl: "test_keyvault"
