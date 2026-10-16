@@ -174,9 +174,7 @@ Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exac
 
 ---
 description: Independent PR reviewer running on a GPT model.
-# gpt-5.4 is the newest GPT that supports Chat Completions behind gh-aw's API proxy;
-# newer GPT models are Responses-only and fail as sub-agents of a Claude lead.
-model: gpt-5.4
+model: gpt-6.1-sol
 tools: ["read", "search", "github/*"]
 ---
 

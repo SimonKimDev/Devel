@@ -16,6 +16,9 @@ permissions:
 
 engine:
   id: copilot
+  # SDK mode gives each model its own wire API, so a Responses-only GPT sub-agent
+  # can run under the Claude lead (CLI mode forces one API for the whole session).
+  copilot-sdk: true
   # The lead merges and verifies; the reviewers' models are set in shared/pr-review.md.
   model: claude-sonnet-5.5
 
