@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Keep GitHub Actions versions current. App dependencies (npm, Go, Docker)
+  # are left out until the app overhaul settles its stack.
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
