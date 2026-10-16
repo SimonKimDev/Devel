@@ -1,0 +1,18 @@
+# Local development. Used when APP_ENV is not "prod".
+environment: "dev"
+server:
+  host: "localhost"
+  port: "18080"
+  allowed_origins:
+    - "http://localhost:3000" # React dev server
+database:
+  # Set to true to serve /api/blogpost. Needs `az login` with access to the
+  # Key Vault secrets and the Postgres server.
+  enabled: false
+  db_url_secret_key: "dbconnectionstring" # Key Vault secret holding the Postgres host
+  db_name_secret_key: "dbcoffeechat"
+  db_user_secret_key: "postgresdbuser"
+  aad_scope: "https://ossrdbms-aad.database.windows.net/.default"
+  port: 5432
+azure:
+  keyvaulturl: "https://develkeyvault.vault.azure.net"

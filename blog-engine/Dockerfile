@@ -1,29 +1,29 @@
-# Start by building the application.
-FROM golang:1.22.1 as builder
+# Build stage
+FROM golang:1.27 AS builder
+
+WORKDIR /src
+
+# Download dependencies first so they're cached until go.mod or go.sum changes.
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/blog-engine ./cmd/blog-engine
+
+# Runtime stage: no shell or package manager, runs as a non-root user, and
+# includes the CA certificates needed for HTTPS calls to Azure.
+FROM gcr.io/distroless/static-debian12:nonroot
 
 WORKDIR /app
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-RUN go mod download
+COPY --from=builder /out/blog-engine ./blog-engine
+COPY configs ./configs
 
-# Copy the source code into the container
-COPY . .
+# The app reads configs/<env>.yaml relative to the working directory.
+ENV APP_ENV=prod
 
-# Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/blog-engine
+# Must match server.port in configs/prod.yaml and apiTargetPort in infra/main.bicepparam.
+EXPOSE 18080
 
-# Start a new stage from scratch
-FROM alpine:latest
-
-# Alpine packaage manager, no cache to save space and time, ca-certs is required for api communication
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-# Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/main .
-
-# Command to run the executable
-CMD ["./main"]
+ENTRYPOINT ["/app/blog-engine"]

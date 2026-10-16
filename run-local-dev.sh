@@ -3,13 +3,13 @@
 # Define relative paths to your projects
 projectRoot=$(dirname "$(realpath "$0")")
 frontendPath="$projectRoot/devel-frontend"
-backendPath="$projectRoot/blog-engine/cmd/blog-engine/"
+backendPath="$projectRoot/blog-engine"
 export REACT_APP_API_BASE_URL=http://localhost:18080/api
 
-# Start the Go backend server
+# Start the Go backend server. It reads configs/dev.yaml relative to blog-engine/.
 echo "Starting the Go backend server..."
 cd "$backendPath"
-go run . &
+go run ./cmd/blog-engine &
 BACKEND_PID=$!
 sleep 5 # Wait a bit to ensure the backend starts up
 
