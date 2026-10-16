@@ -18,6 +18,6 @@ imports:
 timeout-minutes: 20
 ---
 
-# Review pull request #${{ github.event.issue.number }}
+# PR re-review
 
 Review pull request #${{ github.event.issue.number }} in ${{ github.repository }} again, following the pr-reviewer instructions and the steps below. It has probably changed since the last review: focus on what's new, and don't repeat earlier comments that were already addressed.

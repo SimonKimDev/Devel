@@ -17,6 +17,6 @@ imports:
 timeout-minutes: 20
 ---
 
-# Review pull request #${{ github.event.pull_request.number }}
+# PR review
 
 Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}, following the pr-reviewer instructions and the steps below.
