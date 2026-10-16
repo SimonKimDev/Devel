@@ -15,6 +15,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 ## Files
 
 - `bootstrap.bicep`: one-time, subscription scope. Creates the resource group and the identity GitHub Actions signs in as (Contributor on the RG only).
+- `budget.bicep`: one-time, subscription scope. $25/month cost budget that emails at 80% and 100% of actual spend, and when the month is forecast to go over.
 - `main.bicep` + `main.bicepparam`: the app hosting. Deployed by `.github/workflows/deploy.yml` on every push to `main`.
 - `modules/`: Static Web App, Container App (+ environment + logs), GitHub OIDC identity.
 - `web/staticwebapp.config.json`: SPA routing fallback and headers for Static Web Apps.
@@ -39,6 +40,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 $sub = '<subscription id>'
 az provider register -n Microsoft.App --subscription $sub
 az deployment sub create -l westus2 -n devel-bootstrap -f infra/bootstrap.bicep --subscription $sub
+az deployment sub create -l westus2 -n devel-budget -f infra/budget.bicep --subscription $sub
 ```
 
 Copy the outputs into the GitHub repo settings:
