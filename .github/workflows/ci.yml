@@ -15,7 +15,7 @@ concurrency:
 
 env:
   API_DIR: blog-engine
-  DEPLOYMENT_NAME: devel-main
+  API_IMAGE_NAME: devel-api
 
 jobs:
   changes:
@@ -120,8 +120,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: What-if
         run: |
-          current_image=$(az deployment group show -g "$RESOURCE_GROUP" -n "$DEPLOYMENT_NAME" \
-            --query 'properties.outputs.apiImage.value' -o tsv 2>/dev/null || true)
+          current_image=$(az containerapp list -g "$RESOURCE_GROUP" \
+            --query '[].properties.template.containers[0].image' -o tsv 2>/dev/null \
+            | grep -m1 "^ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${API_IMAGE_NAME}:" || true)
           az deployment group what-if -g "$RESOURCE_GROUP" \
             -f infra/main.bicep -p infra/main.bicepparam -p apiImage="$current_image" \
             --no-pretty-print -o json > what-if.json
