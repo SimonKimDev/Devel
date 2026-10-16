@@ -27,10 +27,11 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   - `api-build` (`go vet` and a Docker build) and `api-test` (`go test`).
   - `infra`: Bicep lint, plus `infra-what-if`, a what-if summary on PRs.
 - **Deploy** (`deploy.yml`): runs on push to `main` or manually, in this order:
-  1. Tests the parts that changed: `go test` for the API, and the frontend's `npm test`. A failure stops the deploy before anything is deployed. The repo can't have required checks (private repo on the free plan), so this is what keeps a red commit out of production.
-  2. Pushes the API image to GHCR.
-  3. Deploys `main.bicep` with that image.
-  4. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
+  1. Pushes the API image to GHCR.
+  2. Deploys `main.bicep` with that image.
+  3. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
+
+  It doesn't rerun tests: the `main` ruleset (below) only lets tested code land.
 
   Each step runs only when its part changed. The infra step watches `main.bicep`, `main.bicepparam` and `modules/` only, so edits to this README, `bootstrap.bicep` or `budget.bicep` don't redeploy anything. A change to `deploy.yml` itself runs all three.
   
@@ -38,6 +39,17 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 - **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. The API and sign-in won't work there, because the preview origin isn't allowed by CORS or Entra.
 - **Dependabot** (`.github/dependabot.yml`): once a month, opens one grouped PR that bumps the GitHub Actions used by the workflows and the `build-frontend` action. Dependabot PRs get no Actions secrets, so the jobs that sign in to Azure (infra what-if, frontend preview) are skipped on them. A bad bump to an Azure action shows up in the Deploy run after merge; revert the PR to recover.
 
+## Repository protection
+
+The repo is public, which is what makes these free.
+
+- **`Protect main` ruleset** (Settings → Rules), with no bypass, so it applies to admins too:
+  - Changes reach `main` only through a PR. No approval is needed, since it's a solo repo.
+  - The CI checks `changes`, `frontend-build`, `frontend-test`, `api-build`, `api-test` and `infra` must pass, on a branch that's up to date with `main`. Jobs skipped by the path filter count as passed.
+  - Force-pushes to `main` and deleting it are blocked.
+- **Security** (Settings → Code security): Dependabot alerts and security-update PRs, secret scanning with push protection, and CodeQL default setup.
+
+If a CI job is renamed, update the ruleset's required checks too, or PRs will wait forever for the old name.
 ## One-time setup (already done once; repeat only for a new subscription)
 
 ```powershell

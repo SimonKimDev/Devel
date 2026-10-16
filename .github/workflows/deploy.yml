@@ -47,23 +47,6 @@ jobs:
               - 'infra/modules/**'
               - '.github/workflows/deploy.yml'
 
-  # Runs before anything deploys, so a red frontend stops infra and the API from shipping too.
-  frontend-test:
-    needs: changes
-    if: needs.changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/build-frontend
-        id: setup
-        with:
-          build: 'false'
-      - name: Test
-        working-directory: ${{ steps.setup.outputs.working-directory }}
-        env:
-          CI: 'true'
-        run: npm test -- --watchAll=false
-
   api-image:
     needs: changes
     if: needs.changes.outputs.api == 'true'
@@ -75,13 +58,6 @@ jobs:
       image: ${{ steps.name.outputs.image }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: ${{ env.API_DIR }}/go.mod
-          cache-dependency-path: ${{ env.API_DIR }}/go.sum
-      - name: Test
-        working-directory: ${{ env.API_DIR }}
-        run: go test ./...
       - name: Image name
         id: name
         env:
@@ -110,7 +86,7 @@ jobs:
           cache-to: type=gha,scope=api,mode=max
 
   infra:
-    needs: [changes, frontend-test, api-image]
+    needs: [changes, api-image]
     if: >-
       always() && !cancelled() && !contains(needs.*.result, 'failure') &&
       (needs.changes.outputs.infra == 'true' || needs.api-image.result == 'success')
@@ -169,7 +145,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   frontend:
-    needs: [changes, frontend-test, api-image, infra]
+    needs: [changes, api-image, infra]
     if: >-
       always() && !cancelled() && !contains(needs.*.result, 'failure') &&
       (needs.changes.outputs.frontend == 'true' || needs.changes.outputs.infra == 'true')
