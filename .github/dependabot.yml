@@ -1,7 +1,6 @@
 version: 2
 updates:
-  # Keep GitHub Actions versions current. App dependencies (npm, Go, Docker)
-  # are left out until the app overhaul settles its stack.
+  # Keep GitHub Actions versions current.
   - package-ecosystem: github-actions
     directories:
       - /
@@ -13,3 +12,30 @@ updates:
         patterns: ['*']
     commit-message:
       prefix: ci
+
+  # App dependencies: security fixes only, batched into one PR per app instead of
+  # one PR per package. open-pull-requests-limit: 0 turns off routine version bumps
+  # while the app overhaul is still settling its stack; security PRs aren't affected.
+  - package-ecosystem: npm
+    directory: /devel-frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      frontend-security:
+        applies-to: security-updates
+        patterns: ['*']
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: gomod
+    directory: /blog-engine
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    groups:
+      api-security:
+        applies-to: security-updates
+        patterns: ['*']
+    commit-message:
+      prefix: deps

@@ -37,7 +37,11 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   
   The Bicep deployment (`devel-main`) is the source of truth for names and URLs; later jobs read its outputs. Infra-only changes keep the image the Container App is actually running, read from Azure, so a failed or cancelled deploy can't fall back to the placeholder.
 - **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. The API and sign-in won't work there, because the preview origin isn't allowed by CORS or Entra.
-- **Dependabot** (`.github/dependabot.yml`): once a month, opens one grouped PR that bumps the GitHub Actions used by the workflows and the `build-frontend` action. Dependabot PRs get no Actions secrets, so the jobs that sign in to Azure (infra what-if, frontend preview) are skipped on them. A bad bump to an Azure action shows up in the Deploy run after merge; revert the PR to recover.
+- **Dependabot** (`.github/dependabot.yml`):
+  - GitHub Actions: once a month, one grouped PR that bumps the Actions used by the workflows and the `build-frontend` action.
+  - Frontend (npm) and API (Go): security fixes only, grouped into one PR per app. Routine version bumps are off until the overhaul settles the stack.
+
+  Dependabot PRs get no Actions secrets, so the jobs that sign in to Azure (infra what-if, frontend preview) are skipped on them. A bad bump to an Azure action shows up in the Deploy run after merge; revert the PR to recover.
 
 ## Repository protection
 
