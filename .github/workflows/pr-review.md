@@ -5,6 +5,10 @@ on:
   pull_request:
     types: [opened, reopened, ready_for_review]
 
+# Drafts and Dependabot PRs never start a run. Dependabot runs get no secrets, so they
+# would fail; /review still works on a draft when you want feedback early.
+if: github.event.pull_request.draft == false && github.event.pull_request.user.login != 'dependabot[bot]'
+
 permissions:
   contents: read
   pull-requests: read

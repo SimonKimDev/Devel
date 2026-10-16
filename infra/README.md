@@ -40,7 +40,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 - **PR review** (`pr-review.md`, `pr-review-command.md`): an AI reviewer, written as [GitHub Agentic Workflows](https://github.github.com/gh-aw/). It reviews each new PR and posts inline comments, and commenting `/review` on a PR runs it again. It only comments; it never approves or blocks. Its instructions live in `.github/agents/pr-reviewer.agent.md`, which also makes it available in the repo's Agents tab.
   - Edit the `.md` files, then run `gh aw compile` (needs `gh extension install github/gh-aw`) to regenerate the `.lock.yml` files GitHub actually runs.
   - It runs Copilot with the `COPILOT_GITHUB_TOKEN` secret: a fine-grained personal access token with the **Copilot Requests** permission. Each run uses Copilot premium requests.
-  - Only users with write access trigger it, and Dependabot PRs are skipped (they get no secrets).
+  - Only users with write access trigger it. Draft and Dependabot PRs don't start a run (Dependabot runs get no secrets); comment `/review` to review a draft.
 - **Dependabot** (`.github/dependabot.yml`):
   - GitHub Actions: once a month, one grouped PR that bumps the Actions used by the workflows and the `build-frontend` action.
   - Frontend (npm) and API (Go): security fixes only, grouped into one PR per app. Routine version bumps are off until the overhaul settles the stack.

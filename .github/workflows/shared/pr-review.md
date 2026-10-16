@@ -23,5 +23,3 @@ safe-outputs:
 2. Read the surrounding code in the checked-out repository where you need context.
 3. Post each finding as an inline review comment on the changed line it's about.
 4. Finish by submitting one review with the summary. Use `COMMENT` as the event; never approve or request changes, because the author decides.
-
-If the PR is a draft, submit nothing.
