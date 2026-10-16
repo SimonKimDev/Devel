@@ -54,8 +54,6 @@ jobs:
       - uses: ./.github/actions/build-frontend
 
   # Its own check so a test failure is visible on the PR.
-  # Known failure until the app overhaul: CRA rejects setupFilesAfterEnv in package.json.
-  # Don't make it a required check until it passes.
   frontend-test:
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
