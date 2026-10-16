@@ -1,1 +1,5 @@
 .github/workflows/*.lock.yml linguist-generated=true
+# gh-aw's sub-agent parser needs LF; keep these LF on Windows checkouts too.
+.github/workflows/*.md text eol=lf
+.github/workflows/shared/*.md text eol=lf
+.github/agents/*.md text eol=lf
