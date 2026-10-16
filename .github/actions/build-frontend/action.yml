@@ -1,0 +1,46 @@
+name: Build frontend
+description: >-
+  Installs dependencies and builds the SPA. App-specific build details live here so
+  workflows stay the same when the frontend changes.
+
+inputs:
+  api-url:
+    description: API origin (no trailing slash) to bake into the bundle. Empty keeps the app's .env defaults.
+    required: false
+    default: ''
+
+outputs:
+  working-directory:
+    description: Frontend project directory.
+    value: devel-frontend
+  output-dir:
+    description: Directory containing the built static site.
+    value: devel-frontend/build
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '22'
+        cache: npm
+        cache-dependency-path: devel-frontend/package-lock.json
+
+    - name: Install
+      shell: bash
+      working-directory: devel-frontend
+      run: npm ci --no-audit --no-fund
+
+    - name: Build
+      shell: bash
+      working-directory: devel-frontend
+      env:
+        API_URL: ${{ inputs.api-url }}
+        # CRA turns lint warnings into errors when CI=true; the current app has warnings.
+        CI: 'false'
+      run: |
+        if [[ -n "$API_URL" ]]; then
+          # Shell env takes precedence over .env.production in CRA.
+          export REACT_APP_API_BASE_URL="${API_URL}/api"
+        fi
+        npm run build

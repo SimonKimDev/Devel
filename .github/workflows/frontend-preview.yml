@@ -1,0 +1,75 @@
+name: Frontend preview
+
+# Each PR that touches the frontend gets its own Static Web Apps preview URL
+# (Free tier allows 3 at a time); it is removed when the PR closes.
+# Preview origins aren't in the API's CORS list, so API calls and sign-in only work in production.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - 'devel-frontend/**'
+      - 'infra/web/**'
+      - '.github/actions/build-frontend/**'
+      - '.github/workflows/frontend-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  DEPLOYMENT_NAME: devel-main
+  RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Read infra outputs
+        id: infra
+        run: |
+          outputs=$(az deployment group show -g "$RESOURCE_GROUP" -n "$DEPLOYMENT_NAME" --query 'properties.outputs' -o json)
+          swa=$(jq -r '.staticWebAppName.value' <<< "$outputs")
+          token=$(az staticwebapp secrets list -g "$RESOURCE_GROUP" -n "$swa" --query 'properties.apiKey' -o tsv)
+          echo "::add-mask::$token"
+          echo "api_url=$(jq -r '.apiUrl.value' <<< "$outputs")" >> "$GITHUB_OUTPUT"
+          echo "swa_token=$token" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/build-frontend
+        id: build
+        if: github.event.action != 'closed'
+        with:
+          api-url: ${{ steps.infra.outputs.api_url }}
+      - name: Deploy preview
+        if: github.event.action != 'closed'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          action: upload
+          azure_static_web_apps_api_token: ${{ steps.infra.outputs.swa_token }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          app_location: ${{ steps.build.outputs.output-dir }}
+          config_file_location: infra/web
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Close preview
+        if: github.event.action == 'closed'
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          action: close
+          azure_static_web_apps_api_token: ${{ steps.infra.outputs.swa_token }}
+          app_location: /

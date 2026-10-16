@@ -1,0 +1,134 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  API_DIR: blog-engine
+  DEPLOYMENT_NAME: devel-main
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend == 'true' }}
+      api: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.api == 'true' }}
+      infra: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.infra == 'true' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            frontend:
+              - 'devel-frontend/**'
+              - '.github/actions/build-frontend/**'
+              - '.github/workflows/ci.yml'
+            api:
+              - 'blog-engine/**'
+              - '.github/workflows/ci.yml'
+            infra:
+              - 'infra/**'
+              - '.github/workflows/ci.yml'
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/build-frontend
+        id: build
+      - name: Test
+        working-directory: ${{ steps.build.outputs.working-directory }}
+        # TODO: make blocking once the frontend test setup is fixed (CRA rejects
+        # setupFilesAfterEnv in package.json today).
+        continue-on-error: true
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false
+
+  api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: ${{ env.API_DIR }}/go.mod
+          cache-dependency-path: ${{ env.API_DIR }}/go.sum
+      - name: Vet
+        working-directory: ${{ env.API_DIR }}
+        run: go vet ./...
+      - name: Test
+        working-directory: ${{ env.API_DIR }}
+        run: go test ./...
+      - uses: docker/setup-buildx-action@v4
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ env.API_DIR }}
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+  infra:
+    needs: changes
+    if: needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lint Bicep
+        run: |
+          for f in infra/*.bicep infra/modules/*.bicep; do
+            echo "::group::$f"
+            az bicep lint --file "$f"
+            echo "::endgroup::"
+          done
+          az bicep build-params --file infra/main.bicepparam --stdout > /dev/null
+
+  infra-what-if:
+    needs: [changes, infra]
+    if: github.event_name == 'pull_request' && needs.changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: What-if
+        run: |
+          current_image=$(az deployment group show -g "$RESOURCE_GROUP" -n "$DEPLOYMENT_NAME" \
+            --query 'properties.outputs.apiImage.value' -o tsv 2>/dev/null || true)
+          az deployment group what-if -g "$RESOURCE_GROUP" \
+            -f infra/main.bicep -p infra/main.bicepparam -p apiImage="$current_image" \
+            --no-pretty-print -o json > what-if.json
+          {
+            echo "### Infra what-if (\`$RESOURCE_GROUP\`)"
+            echo
+            echo "| Change | Resource |"
+            echo "|---|---|"
+            jq -r '.changes[] | "| \(.changeType) | `\(.resourceId | split("/providers/") | last)` |"' what-if.json
+          } >> "$GITHUB_STEP_SUMMARY"
