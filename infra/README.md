@@ -27,9 +27,10 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   - `api-build` (`go vet` and a Docker build) and `api-test` (`go test`).
   - `infra`: Bicep lint, plus `infra-what-if`, a what-if summary on PRs.
 - **Deploy** (`deploy.yml`): runs on push to `main` or manually, in this order:
-  1. Pushes the API image to GHCR.
-  2. Deploys `main.bicep` with that image.
-  3. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
+  1. Tests the parts that changed: `go test` for the API, and the frontend's `npm test`. A failure stops the deploy before anything is deployed. The repo can't have required checks (private repo on the free plan), so this is what keeps a red commit out of production.
+  2. Pushes the API image to GHCR.
+  3. Deploys `main.bicep` with that image.
+  4. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
 
   Each step runs only when its part changed. The infra step watches `main.bicep`, `main.bicepparam` and `modules/` only, so edits to this README, `bootstrap.bicep` or `budget.bicep` don't redeploy anything. A change to `deploy.yml` itself runs all three.
   
