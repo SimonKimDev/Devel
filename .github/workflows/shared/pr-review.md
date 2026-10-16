@@ -79,7 +79,7 @@ You lead the review. You don't review the code first yourself: two reviewers on 
 
 ### 1. Independent reviews
 
-Invoke the `claude-reviewer` and `gpt-reviewer` sub-agents with the same task: "Review pull request #<number> in <repo>." Run both before looking at either result in detail, so neither influences the other. If a sub-agent fails or returns nothing usable, retry it once. If it fails again, continue with the other reviewer and record it as unavailable.
+Invoke the `claude-reviewer` and `gpt-reviewer` sub-agents with the same task: "Review pull request #<number> in <repo>." Run both before looking at either result in detail, so neither influences the other. If a sub-agent fails or returns nothing usable, retry it once. If it fails again, continue with the other reviewer and record it as unavailable. A reviewer that returns `[{"unavailable": true, ...}]` is also unavailable (no retry); note the missing file in the table. Only a bare `[]` means "no findings".
 
 ### 2. Merge
 
@@ -140,6 +140,9 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 ---
 description: Independent PR reviewer running on a Claude model.
 model: claude-opus-5.5
+# Read-only: reviewers report findings, they never edit. Also keeps the tool set
+# compatible with every model's API.
+tools: ["read", "search", "github/*"]
 ---
 
 Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exactly: it defines your task, what to read and the JSON format to return.
@@ -151,6 +154,7 @@ Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exac
 ---
 description: Independent PR reviewer running on a GPT model.
 model: gpt-6.1-sol
+tools: ["read", "search", "github/*"]
 ---
 
 Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exactly: it defines your task, what to read and the JSON format to return.

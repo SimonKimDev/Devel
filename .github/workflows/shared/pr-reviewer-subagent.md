@@ -21,6 +21,6 @@ Don't post anything to GitHub. Return your findings as a JSON array, and nothing
 - `line` is the line number in the new version of the file, and must be a line the PR changed.
 - Report only problems you can point to in the code. If you're unsure, say so in the explanation and lower the confidence.
 - Return `[]` if you find nothing worth reporting.
-- If `.github/agents/pr-reviewer.agent.md` or `.github/copilot-instructions.md` is missing, don't guess the criteria: return `[]` and say which file was missing, so the lead marks you unavailable.
+- If `.github/agents/pr-reviewer.agent.md` or `.github/copilot-instructions.md` is missing, don't guess the criteria. Return exactly `[{"unavailable": true, "missing": "<path>"}]` instead, so the lead records you as unavailable.
 
 When the lead later asks you to assess another reviewer's findings, read the code each one refers to and reply `agree` or `disagree` with one sentence of reasoning for each.
