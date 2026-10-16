@@ -93,7 +93,6 @@ module api 'modules/container-app.bicep' = {
 }
 
 output apiUrl string = api.outputs.url
-// Read back by CI so infra-only deploys keep the currently running image.
 output apiImage string = usePlaceholder ? '' : apiImage
 output containerAppName string = api.outputs.name
 output staticWebAppName string = web.outputs.name

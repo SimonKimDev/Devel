@@ -14,7 +14,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 
 ## Files
 
-- `bootstrap.bicep`: one-time, subscription scope. Creates the resource group and the identity GitHub Actions signs in as (Contributor on the RG only).
+- `bootstrap.bicep`: one-time, subscription scope. Creates the resource group and the identity GitHub Actions signs in as (Contributor on the RG only, plus a tiny custom role at subscription scope that can only read `Microsoft.Web/locations/*` operation status; without it, deploys that touch the SWA custom domain hang forever).
 - `budget.bicep`: one-time, subscription scope. $25/month cost budget that emails at 80% and 100% of actual spend, and when the month is forecast to go over.
 - `main.bicep` + `main.bicepparam`: the app hosting. Deployed by `.github/workflows/deploy.yml` on every push to `main`.
 - `modules/`: Static Web App, Container App (+ environment + logs), GitHub OIDC identity.
@@ -31,7 +31,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   2. Deploys `main.bicep` with that image.
   3. Builds the SPA against the deployed API URL and uploads it to Static Web Apps.
   
-  The Bicep deployment (`devel-main`) is the source of truth. Later jobs read its outputs, and infra-only changes keep the running image.
+  The Bicep deployment (`devel-main`) is the source of truth for names and URLs; later jobs read its outputs. Infra-only changes keep the image the Container App is actually running, read from Azure, so a failed or cancelled deploy can't fall back to the placeholder.
 - **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. The API and sign-in won't work there, because the preview origin isn't allowed by CORS or Entra.
 
 ## One-time setup (already done once; repeat only for a new subscription)

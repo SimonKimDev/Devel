@@ -106,9 +106,11 @@ jobs:
         run: |
           image="$NEW_IMAGE"
           if [[ -z "$image" ]]; then
-            # Infra-only change: keep whatever image is running now.
-            image=$(az deployment group show -g "$RESOURCE_GROUP" -n "$DEPLOYMENT_NAME" \
-              --query 'properties.outputs.apiImage.value' -o tsv 2>/dev/null || true)
+            # Infra-only change: keep the image the Container App is actually running.
+            # Read live state, not deployment outputs: a failed or cancelled deploy has no outputs.
+            image=$(az containerapp list -g "$RESOURCE_GROUP" \
+              --query '[].properties.template.containers[0].image' -o tsv 2>/dev/null \
+              | grep -m1 "^ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${API_IMAGE_NAME}:" || true)
           fi
           echo "image=$image" >> "$GITHUB_OUTPUT"
           echo "API image: ${image:-<placeholder>}"

@@ -40,6 +40,38 @@ module githubOidc 'modules/github-oidc.bicep' = {
   }
 }
 
+// Some Microsoft.Web operations (e.g. the Static Web Apps custom domain PUT) report progress
+// through a subscription-level status endpoint. Without read access there, ARM retries forever
+// and the deploy hangs, so grant just that, read-only.
+resource operationStatusReader 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: guid(subscription().id, 'devel-web-operation-status-reader')
+  properties: {
+    roleName: 'Devel Web operation status reader'
+    description: 'Read Microsoft.Web regional operation status, so CI can wait on long-running Web operations.'
+    type: 'CustomRole'
+    assignableScopes: [
+      subscription().id
+    ]
+    permissions: [
+      {
+        actions: [
+          'Microsoft.Web/locations/*/read'
+        ]
+        notActions: []
+      }
+    ]
+  }
+}
+
+resource operationStatusAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, rg.id, 'id-devel-github', operationStatusReader.id)
+  properties: {
+    roleDefinitionId: operationStatusReader.id
+    principalId: githubOidc.outputs.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 output AZURE_CLIENT_ID string = githubOidc.outputs.clientId
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_SUBSCRIPTION_ID string = subscription().subscriptionId
