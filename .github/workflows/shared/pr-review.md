@@ -163,7 +163,6 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 ---
 description: Independent PR reviewer running on a Claude model.
 model: claude-opus-5.5
-tools: ["read", "search", "github/*"]
 ---
 
 Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exactly: it defines your task, what to read and the JSON format to return.
@@ -175,7 +174,6 @@ Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exac
 ---
 description: Independent PR reviewer running on a GPT model.
 model: gpt-6.1-sol
-tools: ["read", "search", "github/*"]
 ---
 
 Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exactly: it defines your task, what to read and the JSON format to return.
