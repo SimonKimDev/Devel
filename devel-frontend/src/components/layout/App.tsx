@@ -7,7 +7,7 @@ import Login from '../auth/Login'
 
 
 function App() {
-  const baseUrl = process.env.REACT_APP_API_BASE_URL;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const [message, setMessage] = useState('');
   const fetchMessage = () => {
     fetch(baseUrl + "/message").then(response => response.json())

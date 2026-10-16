@@ -52,6 +52,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/build-frontend
+        id: build
+      - name: Lint
+        working-directory: ${{ steps.build.outputs.working-directory }}
+        run: npm run lint
 
   # Its own check so a test failure is visible on the PR.
   frontend-test:
@@ -66,9 +70,7 @@ jobs:
           build: 'false'
       - name: Test
         working-directory: ${{ steps.setup.outputs.working-directory }}
-        env:
-          CI: 'true'
-        run: npm test -- --watchAll=false
+        run: npm test
 
   api-build:
     needs: changes

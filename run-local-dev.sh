@@ -4,7 +4,7 @@
 projectRoot=$(dirname "$(realpath "$0")")
 frontendPath="$projectRoot/devel-frontend"
 backendPath="$projectRoot/blog-engine"
-export REACT_APP_API_BASE_URL=http://localhost:18080/api
+export VITE_API_BASE_URL=http://localhost:18080/api
 
 # Start the Go backend server. It reads configs/dev.yaml relative to blog-engine/.
 echo "Starting the Go backend server..."
@@ -17,7 +17,7 @@ sleep 5 # Wait a bit to ensure the backend starts up
 echo "Starting the Node.js frontend server..."
 cd "$frontendPath"
 npm install
-npm start &
+npm run dev &
 FRONTEND_PID=$!
 
 # Function to stop the servers
