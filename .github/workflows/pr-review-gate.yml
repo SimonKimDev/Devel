@@ -1,0 +1,38 @@
+name: PR review gate
+
+# Owns the required `pr-review` commit status until the AI review sets the verdict.
+# - Normal PRs: pending ("waiting for review"); the PR review workflow later sets
+#   success (ready to merge) or failure (needs changes) on the same commit.
+# - Drafts and Dependabot PRs aren't reviewed automatically, so they get success
+#   ("skipped") and aren't blocked forever. Comment /review on a draft to review it anyway.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - name: Set pr-review status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "$AUTHOR" == "dependabot[bot]" ]]; then
+            state=success; desc="Skipped: Dependabot PR"
+          elif [[ "$DRAFT" == "true" ]]; then
+            state=success; desc="Skipped: draft (comment /review to review it)"
+          else
+            state=pending; desc="Waiting for the AI review"
+          fi
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state="$state" -f context=pr-review -f description="$desc" -f target_url="$RUN_URL" > /dev/null
+          echo "pr-review: $state ($desc) on $SHA"

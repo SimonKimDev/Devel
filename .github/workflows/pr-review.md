@@ -1,9 +1,9 @@
 ---
-description: Reviews each new pull request with two reviewers on different models and posts inline review comments.
+description: Reviews each pull request on open and on every push with two reviewers on different models and posts inline review comments.
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 # Drafts and Dependabot PRs never start a run. Dependabot runs get no secrets, so they
 # would fail; /review still works on a draft when you want feedback early.

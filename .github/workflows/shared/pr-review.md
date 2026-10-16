@@ -15,6 +15,59 @@ safe-outputs:
     max: 1
   messages:
     footer: "> Reviewed by [{workflow_name}]({run_url}). Comment `/review` to run it again."
+  jobs:
+    # Sets the required `pr-review` commit status on the PR's head commit.
+    # If the agent never calls this, the status stays pending and the PR stays blocked.
+    set-review-verdict:
+      description: "Record the review verdict as the pr-review commit status, which gates merging."
+      runs-on: ubuntu-latest
+      output: "Verdict recorded."
+      permissions:
+        statuses: write
+        pull-requests: read
+      inputs:
+        verdict:
+          description: "ready (can merge) or needs-changes"
+          required: true
+          type: string
+        confidence:
+          description: "Review confidence from 0 to 100"
+          required: true
+          type: string
+      steps:
+        - name: Set pr-review status
+          uses: actions/github-script@v9
+          with:
+            script: |
+              const fs = require('fs');
+              const file = process.env.GH_AW_AGENT_OUTPUT;
+              if (!file || !fs.existsSync(file)) {
+                core.setFailed('No agent output; leaving pr-review unset.');
+                return;
+              }
+              const items = JSON.parse(fs.readFileSync(file, 'utf8')).items
+                .filter(i => i.type === 'set_review_verdict');
+              if (items.length === 0) {
+                core.setFailed('The agent did not record a verdict.');
+                return;
+              }
+              const { verdict, confidence } = items[items.length - 1];
+              const score = Math.max(0, Math.min(100, parseInt(confidence, 10) || 0));
+              const ready = verdict === 'ready';
+
+              const prNumber = context.payload.pull_request?.number ?? context.payload.issue?.number;
+              const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: prNumber });
+              const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+              await github.rest.repos.createCommitStatus({
+                ...context.repo,
+                sha: pr.head.sha,
+                context: 'pr-review',
+                state: ready ? 'success' : 'failure',
+                description: `${ready ? 'Ready to merge' : 'Needs changes'} (confidence ${score}/100)`,
+                target_url: runUrl,
+              });
+              core.info(`pr-review: ${ready ? 'success' : 'failure'} on ${pr.head.sha} (${score}/100)`);
 
 ---
 
@@ -40,12 +93,26 @@ For every finding raised by only one reviewer, ask the other reviewer to assess 
 - **Disputed:** one raised it, the other disagrees. Read the code yourself and decide. Keep it only if you can confirm the problem from the code; record the dispute either way.
 - **Dropped:** anything you can't confirm from the code, anything outside the PR's changed lines that isn't caused by the change, and pure style nits.
 
-### 4. Publish
+### 4. Decide the verdict
+
+Set confidence (0–100) from how complete and consistent the round was: lower it when a reviewer was unavailable, when disputes remain, or when the diff was too large to review fully.
+
+The verdict is **ready** only when all of these hold; otherwise it's **needs-changes**:
+- no published finding has severity high or medium (low findings alone don't block),
+- both reviewers completed,
+- confidence is at least 60.
+
+### 5. Publish
 
 - Post each kept finding as one inline review comment on the changed line it's about, written per the pr-reviewer guidelines. Highest severity first; at most 15. Don't repeat feedback that's already on the PR and still applies.
-- Submit one review with event `COMMENT` (never approve or request changes). Its body contains the summary described in the pr-reviewer guidelines, followed by this collapsed table:
+- Submit one review with event `COMMENT` (never approve or request changes). Its body starts with the verdict line, then the summary described in the pr-reviewer guidelines, then this collapsed table:
 
 ```
+**Verdict: ✅ Ready to merge** · Confidence <n>/100
+(or **Verdict: ❌ Needs changes** · Confidence <n>/100, followed by one line saying what blocks it)
+
+<summary from the pr-reviewer guidelines>
+
 <details>
 <summary>Review context and counts</summary>
 
@@ -57,16 +124,16 @@ For every finding raised by only one reviewer, ask the other reviewer to assess 
 | Agreed by both | <n> |
 | Disputed | <n> (kept <n>, dropped <n>) |
 | Dropped | <n> |
-| Published | <n> |
+| Published | <n> (high <n>, medium <n>, low <n>) |
 | Consensus reached | <True if there are no disputed findings, else False> |
-| Review confidence | <0-100> |
+| Review confidence | <n>/100 |
 
 </details>
 ```
 
-  Base the confidence on how complete and consistent the round was: lower it when a reviewer was unavailable, when disputes remain, or when the diff was too large to review fully. If a reviewer was unavailable, start the summary with "⚠️ Only one reviewer completed this round; comment `/review` to retry."
-
-If neither reviewer found anything worth publishing, submit a short review saying so, still with the table.
+  If a reviewer was unavailable, put "⚠️ Only one reviewer completed this round; comment `/review` to retry." right after the verdict line.
+- If neither reviewer found anything worth publishing, still submit the review with the verdict line and the table.
+- Finally, call the `set-review-verdict` tool exactly once with the same verdict (`ready` or `needs-changes`) and confidence. This sets the `pr-review` status that gates merging, so never skip it, and make sure it matches the verdict line.
 
 ## agent: `claude-reviewer`
 
