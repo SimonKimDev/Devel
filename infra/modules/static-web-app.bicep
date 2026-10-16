@@ -18,11 +18,14 @@ resource site 'Microsoft.Web/staticSites@2024-11-01' = {
   }
 }
 
+// Apex domains (example.com) can't be validated by CNAME, so they use a TXT token.
+var isApexDomain = length(split(customDomain, '.')) == 2
+
 resource domain 'Microsoft.Web/staticSites/customDomains@2024-11-01' = if (!empty(customDomain)) {
   parent: site
   name: empty(customDomain) ? 'unused' : customDomain
   properties: {
-    validationMethod: 'cname-delegation'
+    validationMethod: isApexDomain ? 'dns-txt-token' : 'cname-delegation'
   }
 }
 
