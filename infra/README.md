@@ -60,7 +60,33 @@ Omit `apiImage` to run the public placeholder image. Always use `-n devel-main`,
 
 ## Custom domain
 
-1. Create a CNAME from the domain to the Static Web App's default hostname.
-2. Set `customDomain` in `main.bicepparam` and push.
+The site is served at `https://simonkimdevel.com`. The domain is registered at Cloudflare, so its DNS lives in Cloudflare and is managed by hand, not in Bicep. `www` redirects to the apex at Cloudflare.
 
-The domain is added to the API's CORS allow-list automatically. Add `https://<domain>` as a redirect URI on the app registration.
+Cloudflare DNS records:
+
+| Type | Name | Content | Proxy |
+|---|---|---|---|
+| `TXT` | `@` | Validation token from `az staticwebapp hostname show` | n/a |
+| `CNAME` | `@` | Static Web App default hostname (`az staticwebapp show --query defaultHostname`) | DNS only |
+| `A` | `www` | `192.0.2.1` (placeholder, never reached) | Proxied |
+
+Plus, in Cloudflare:
+
+- A redirect rule from the "Redirect from WWW to root" template (Rules → Redirect Rules): `https://www.*` → `https://${1}`, 301, preserve query string.
+- **Always Use HTTPS** turned on (SSL/TLS → Edge Certificates), so `http://www` is upgraded before the redirect rule runs.
+
+Keep the apex records **DNS only**. Azure issues and renews the HTTPS certificate itself, which fails if Cloudflare proxies the traffic. Keep the `TXT` record too: every deploy re-applies the custom domain and may revalidate it.
+
+To change or move the domain:
+
+1. Add it before deploying, otherwise the deploy waits on validation:
+
+   ```powershell
+   az staticwebapp hostname set -n swa-devel -g rg-devel-blog --hostname <domain> --validation-method dns-txt-token --no-wait
+   az staticwebapp hostname show -n swa-devel -g rg-devel-blog --hostname <domain> --query validationToken
+   ```
+
+   Use `--validation-method cname-delegation` and a `CNAME` record instead for a subdomain such as `blog.example.com`.
+2. Create the DNS records above and wait for `az staticwebapp hostname show ... --query status` to report `Ready`.
+3. Set `customDomain` in `main.bicepparam` and push. The domain is added to the API's CORS allow-list automatically.
+4. Add `https://<domain>` as a SPA redirect URI on the `Devel` app registration, for sign-in.
