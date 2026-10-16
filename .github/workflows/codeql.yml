@@ -14,9 +14,10 @@ on:
 permissions:
   contents: read
 
+# Only PR runs cancel each other; a push to main must not cancel the weekly full scan.
 concurrency:
-  group: codeql-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: codeql-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   changes:
@@ -33,7 +34,7 @@ jobs:
         id: filter
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         with:
-          # Filter names are CodeQL language names.
+          # Filter names are CodeQL language names. Editing this workflow rescans every language.
           filters: |
             actions:
               - '.github/workflows/*.yml'
@@ -42,8 +43,10 @@ jobs:
               - 'blog-engine/**/*.go'
               - 'blog-engine/go.mod'
               - 'blog-engine/go.sum'
+              - '.github/workflows/codeql.yml'
             javascript-typescript:
               - 'devel-frontend/**/*.{js,jsx,mjs,cjs,ts,tsx,html}'
+              - '.github/workflows/codeql.yml'
       - name: Pick languages
         id: pick
         env:
