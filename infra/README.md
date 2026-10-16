@@ -22,10 +22,10 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
 
 ## Pipelines
 
-- **CI** (`ci.yml`): runs on PRs and pushes to `main`, only for the parts that changed.
-  - Frontend: build and test. Tests are non-blocking until the app's test setup is fixed.
-  - API: `go vet`, `go test` and a Docker build.
-  - Infra: Bicep lint, plus a what-if summary on PRs.
+- **CI** (`ci.yml`): runs on PRs and pushes to `main`, only for the parts that changed. Editing a workflow file runs everything that workflow covers. Builds and tests are separate checks, so a test failure is visible on its own.
+  - `frontend-build` and `frontend-test`. `frontend-test` fails until the app overhaul fixes the test setup (CRA rejects `setupFilesAfterEnv` in `package.json`). It's informational; don't make it a required check until it passes.
+  - `api-build` (`go vet` and a Docker build) and `api-test` (`go test`).
+  - `infra`: Bicep lint, plus `infra-what-if`, a what-if summary on PRs.
 - **Deploy** (`deploy.yml`): runs on push to `main` or manually, in this order:
   1. Pushes the API image to GHCR.
   2. Deploys `main.bicep` with that image.

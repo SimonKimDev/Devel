@@ -1,13 +1,17 @@
 name: Build frontend
 description: >-
-  Installs dependencies and builds the SPA. App-specific build details live here so
-  workflows stay the same when the frontend changes.
+  Installs dependencies and builds the SPA (set build to 'false' to only install, e.g. for
+  tests). App-specific build details live here so workflows stay the same when the frontend changes.
 
 inputs:
   api-url:
     description: API origin (no trailing slash) to bake into the bundle. Empty keeps the app's .env defaults.
     required: false
     default: ''
+  build:
+    description: Set to 'false' to install dependencies without building.
+    required: false
+    default: 'true'
 
 outputs:
   working-directory:
@@ -32,6 +36,7 @@ runs:
       run: npm ci --no-audit --no-fund
 
     - name: Build
+      if: inputs.build != 'false'
       shell: bash
       working-directory: devel-frontend
       env:
