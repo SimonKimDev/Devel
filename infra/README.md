@@ -58,7 +58,8 @@ The repo is public, which is what makes these free.
   - Changes reach `main` through a PR. No approval is needed, since it's a solo repo.
   - The CI checks `changes`, `frontend-build`, `frontend-test`, `api-build`, `api-test` and `infra` must pass. The branch doesn't need to be up to date with `main`. Jobs skipped by the path filter count as passed.
   - Force-pushes to `main` and deleting it are blocked.
-- **Security** (Settings → Code security): Dependabot alerts and security-update PRs, secret scanning with push protection, and CodeQL default setup.
+- **Security** (Settings → Code security): Dependabot alerts and security-update PRs, and secret scanning with push protection.
+- **CodeQL** (`codeql.yml`): code scanning for Actions workflows, Go and TypeScript. On PRs and pushes to `main`, each language is scanned only when its own files change, so docs-only changes skip it. A weekly run (and a manual run) scans everything. Default setup is off, because GitHub rejects results from both at once.
 
 If a CI job is renamed, update the ruleset's required checks too, or PRs will wait forever for the old name.
 ## One-time setup (already done once; repeat only for a new subscription)
