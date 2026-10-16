@@ -1,0 +1,83 @@
+name: CodeQL
+
+# Advanced setup (not default setup) so each language is scanned only when its own
+# files change. The weekly and manual runs scan every language, so new CodeQL
+# queries still reach code nobody touched.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # JSON list of CodeQL languages to scan, e.g. ["go"].
+      languages: ${{ steps.pick.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        with:
+          # Filter names are CodeQL language names.
+          filters: |
+            actions:
+              - '.github/workflows/*.yml'
+              - '.github/actions/**/action.yml'
+            go:
+              - 'blog-engine/**/*.go'
+              - 'blog-engine/go.mod'
+              - 'blog-engine/go.sum'
+            javascript-typescript:
+              - 'devel-frontend/**/*.{js,jsx,mjs,cjs,ts,tsx,html}'
+      - name: Pick languages
+        id: pick
+        env:
+          CHANGED: ${{ steps.filter.outputs.changes }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "push" ]]; then
+            echo "languages=${CHANGED:-[]}" >> "$GITHUB_OUTPUT"
+          else
+            echo 'languages=["actions","go","javascript-typescript"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  analyze:
+    needs: changes
+    if: needs.changes.outputs.languages != '[]'
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(needs.changes.outputs.languages) }}
+    steps:
+      - uses: actions/checkout@v7
+      - if: matrix.language == 'go'
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: blog-engine/go.mod
+          cache-dependency-path: blog-engine/go.sum
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.language == 'go' && 'autobuild' || 'none' }}
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
