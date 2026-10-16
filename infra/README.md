@@ -46,7 +46,8 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   - Edit the `.md` files, then run `gh aw compile` (needs `gh extension install github/gh-aw`) to regenerate the `.lock.yml` files GitHub actually runs.
   - It runs Copilot with the `COPILOT_GITHUB_TOKEN` secret: a fine-grained personal access token with the **Copilot Requests** permission. Each run uses Copilot premium requests for three models (the lead and two reviewers).
   - Only users with write access trigger it. Draft and Dependabot PRs don't start a run (Dependabot runs get no secrets); comment `/review` to review a draft.
-  - Each run shows up as six checks (`pre_activation`, `activation`, `agent`, `detection`, `safe_outputs`, `conclusion`): one per job, from the write-access check through the AI review, the output safety scan and posting. Only `pr-review` gates merging.
+  - Each run shows up as seven checks (`pre_activation`, `activation`, `agent`, `detection`, `safe_outputs`, `set_review_verdict`, `conclusion`): one per job, from the write-access check through the AI review, the output safety scan, posting and the verdict. The gate adds its own `PR review gate / status` check. Only the `pr-review` status gates merging.
+  - The verdict is written only if threat detection passed and the PR head is still the commit that was reviewed; otherwise `pr-review` stays pending.
 - **Dependabot** (`.github/dependabot.yml`):
   - GitHub Actions: once a month, one grouped PR that bumps the Actions used by the workflows and the `build-frontend` action.
   - Frontend (npm) and API (Go): security fixes only, grouped into one PR per app. Routine version bumps are off until the overhaul settles the stack.

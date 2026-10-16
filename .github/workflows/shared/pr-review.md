@@ -17,12 +17,14 @@ safe-outputs:
     footer: "> Reviewed by [{workflow_name}]({run_url}). Comment `/review` to run it again."
   jobs:
     # Sets the required `pr-review` commit status on the PR's head commit.
-    # If the agent never calls this, the status stays pending and the PR stays blocked.
+    # Fails closed: if the agent never calls this, threat detection didn't pass, or the PR
+    # got a new push during the review, the status stays pending and the PR stays blocked.
     set-review-verdict:
       description: "Record the review verdict as the pr-review commit status, which gates merging."
       runs-on: ubuntu-latest
       output: "Verdict recorded."
       permissions:
+        actions: read
         statuses: write
         pull-requests: read
       inputs:
@@ -39,10 +41,17 @@ safe-outputs:
           uses: actions/github-script@v9
           with:
             script: |
+              // A flagged output (e.g. a prompt-injected "ready") must never unlock merging.
+              const detection = process.env.GH_AW_DETECTION_CONCLUSION;
+              if (detection !== 'success') {
+                core.setFailed(`Threat detection concluded "${detection}"; leaving pr-review pending.`);
+                return;
+              }
+
               const fs = require('fs');
               const file = process.env.GH_AW_AGENT_OUTPUT;
               if (!file || !fs.existsSync(file)) {
-                core.setFailed('No agent output; leaving pr-review unset.');
+                core.setFailed('No agent output; leaving pr-review pending.');
                 return;
               }
               const items = JSON.parse(fs.readFileSync(file, 'utf8')).items
@@ -57,17 +66,40 @@ safe-outputs:
 
               const prNumber = context.payload.pull_request?.number ?? context.payload.issue?.number;
               const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: prNumber });
-              const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              const sha = pr.head.sha;
 
+              // Only mark the commit that was actually reviewed. On pull_request runs the
+              // event names it; for /review runs, the gate marks every push pending, so a
+              // pending status newer than this run's start means a push landed mid-review.
+              const eventSha = context.payload.pull_request?.head?.sha;
+              let stale = false;
+              if (eventSha) {
+                stale = eventSha !== sha;
+              } else {
+                const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: context.runId });
+                const started = new Date(run.run_started_at);
+                const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, { ...context.repo, ref: sha });
+                const firstSeen = statuses
+                  .filter(s => s.context === 'pr-review')
+                  .map(s => new Date(s.created_at))
+                  .sort((a, b) => a - b)[0];
+                stale = firstSeen !== undefined && firstSeen > started;
+              }
+              if (stale) {
+                core.warning(`PR #${prNumber} moved to ${sha} during the review; leaving its pr-review status for the newer run.`);
+                return;
+              }
+
+              const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
               await github.rest.repos.createCommitStatus({
                 ...context.repo,
-                sha: pr.head.sha,
+                sha,
                 context: 'pr-review',
                 state: ready ? 'success' : 'failure',
                 description: `${ready ? 'Ready to merge' : 'Needs changes'} (confidence ${score}/100)`,
                 target_url: runUrl,
               });
-              core.info(`pr-review: ${ready ? 'success' : 'failure'} on ${pr.head.sha} (${score}/100)`);
+              core.info(`pr-review: ${ready ? 'success' : 'failure'} on ${sha} (${score}/100)`);
 
 ---
 
@@ -140,8 +172,6 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 ---
 description: Independent PR reviewer running on a Claude model.
 model: claude-opus-5.5
-# Read-only: reviewers report findings, they never edit. Also keeps the tool set
-# compatible with every model's API.
 tools: ["read", "search", "github/*"]
 ---
 
