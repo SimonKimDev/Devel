@@ -64,7 +64,8 @@ safe-outputs:
               }
               const { verdict, confidence } = items[items.length - 1];
               const score = Math.max(0, Math.min(100, parseInt(confidence, 10) || 0));
-              const ready = verdict === 'ready';
+              // Enforce the confidence floor here too; the prompt alone isn't a guarantee.
+              const ready = verdict === 'ready' && score >= 60;
 
               const prNumber = context.payload.pull_request?.number ?? context.payload.issue?.number;
               const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: prNumber });
@@ -167,7 +168,7 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 
   If a reviewer was unavailable, put "⚠️ Only one reviewer completed this round; comment `/review` to retry." right after the verdict line.
 - If neither reviewer found anything worth publishing, still submit the review with the verdict line and the table.
-- Finally, call the `set-review-verdict` tool exactly once with the same verdict (`ready` or `needs-changes`) and confidence. This sets the `pr-review` status that gates merging, so never skip it, and make sure it matches the verdict line.
+- Finally, call the `set_review_verdict` tool exactly once with the same verdict (`ready` or `needs-changes`) and confidence. This sets the `pr-review` status that gates merging, so never skip it, and make sure it matches the verdict line.
 
 ## agent: `claude-reviewer`
 
