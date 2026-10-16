@@ -19,14 +19,13 @@ safe-outputs:
     footer: "> Reviewed by [{workflow_name}]({run_url}). Comment `/review` to run it again."
   jobs:
     # Sets the required `pr-review` commit status on the PR's head commit.
-    # Fails closed: if the agent never calls this, threat detection didn't pass, or the PR
-    # got a new push during the review, the status stays pending and the PR stays blocked.
+    # Fails closed: if the agent never calls this (the job is then skipped), threat detection
+    # didn't pass, or the PR moved past the reviewed commit, the status stays pending.
     set-review-verdict:
       description: "Record the review verdict as the pr-review commit status, which gates merging."
       runs-on: ubuntu-latest
       output: "Verdict recorded."
       permissions:
-        actions: read
         statuses: write
         pull-requests: read
       inputs:
@@ -36,6 +35,10 @@ safe-outputs:
           type: string
         confidence:
           description: "Review confidence from 0 to 100"
+          required: true
+          type: string
+        reviewed_sha:
+          description: "Full SHA of the PR head commit the reviewers reviewed"
           required: true
           type: string
       steps:
@@ -58,11 +61,8 @@ safe-outputs:
               }
               const items = JSON.parse(fs.readFileSync(file, 'utf8')).items
                 .filter(i => i.type === 'set_review_verdict');
-              if (items.length === 0) {
-                core.setFailed('The agent did not record a verdict.');
-                return;
-              }
-              const { verdict, confidence } = items[items.length - 1];
+              // The job only runs when the agent called the tool, so items is non-empty here.
+              const { verdict, confidence, reviewed_sha: reviewedSha } = items[items.length - 1] ?? {};
               const score = Math.max(0, Math.min(100, parseInt(confidence, 10) || 0));
               // Enforce the confidence floor here too; the prompt alone isn't a guarantee.
               const ready = verdict === 'ready' && score >= 60;
@@ -71,25 +71,13 @@ safe-outputs:
               const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: prNumber });
               const sha = pr.head.sha;
 
-              // Only mark the commit that was actually reviewed. On pull_request runs the
-              // event names it; for /review runs, the gate marks every push pending, so a
-              // pending status newer than this run's start means a push landed mid-review.
+              // Only mark the commit that was actually reviewed: the head must still be the
+              // commit the agent reviewed and, on pull_request runs, the commit the event named.
+              // SHA comparison doesn't depend on timing, gate ordering or re-runs.
               const eventSha = context.payload.pull_request?.head?.sha;
-              let stale = false;
-              if (eventSha) {
-                stale = eventSha !== sha;
-              } else {
-                const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: context.runId });
-                const started = new Date(run.run_started_at);
-                const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, { ...context.repo, ref: sha });
-                const firstSeen = statuses
-                  .filter(s => s.context === 'pr-review')
-                  .map(s => new Date(s.created_at))
-                  .sort((a, b) => a - b)[0];
-                stale = firstSeen !== undefined && firstSeen > started;
-              }
+              const stale = reviewedSha !== sha || (eventSha !== undefined && eventSha !== sha);
               if (stale) {
-                core.warning(`PR #${prNumber} moved to ${sha} during the review; leaving its pr-review status for the newer run.`);
+                core.warning(`PR #${prNumber} head is ${sha}, but the review covered ${reviewedSha || 'an unknown commit'}; leaving pr-review pending for the newer run.`);
                 return;
               }
 
@@ -168,7 +156,7 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 
   If a reviewer was unavailable, put "⚠️ Only one reviewer completed this round; comment `/review` to retry." right after the verdict line.
 - If neither reviewer found anything worth publishing, still submit the review with the verdict line and the table.
-- Finally, call the `set_review_verdict` tool exactly once with the same verdict (`ready` or `needs-changes`) and confidence. This sets the `pr-review` status that gates merging, so never skip it, and make sure it matches the verdict line.
+- Finally, call the `set_review_verdict` tool exactly once with the same verdict (`ready` or `needs-changes`), the confidence, and `reviewed_sha`: the full head SHA of the PR as you read it at the start of the review. This sets the `pr-review` status that gates merging, so never skip it, and make sure it matches the verdict line.
 
 ## agent: `claude-reviewer`
 
@@ -186,7 +174,9 @@ Read `.github/workflows/shared/pr-reviewer-subagent.md` first and follow it exac
 
 ---
 description: Independent PR reviewer running on a GPT model.
-model: gpt-6.1-sol
+# gpt-5.4 is the newest GPT that supports Chat Completions behind gh-aw's API proxy;
+# newer GPT models are Responses-only and fail as sub-agents of a Claude lead.
+model: gpt-5.4
 tools: ["read", "search", "github/*"]
 ---
 
