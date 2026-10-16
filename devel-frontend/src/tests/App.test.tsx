@@ -1,11 +1,8 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../components/layout/App';
 
-// Plain functions (not jest.fn) because CRA's Jest config sets resetMocks: true,
-// which would wipe jest.fn implementations created in this factory before each test.
-jest.mock('../services/authentication/msalConfig', () => ({
+vi.mock('../services/authentication/msalConfig', () => ({
   msalInstance: {
     initialize: () => Promise.resolve(),
     handleRedirectPromise: () => Promise.resolve(null),
@@ -17,28 +14,17 @@ jest.mock('../services/authentication/msalConfig', () => ({
 }));
 
 const API_BASE_URL = 'https://api.example.test/api';
-const originalApiBaseUrl = process.env.REACT_APP_API_BASE_URL;
-const originalFetch = global.fetch;
 
 const mockFetch = (impl: () => Promise<unknown>) => {
-  const fetchMock = jest.fn(impl);
-  global.fetch = fetchMock as unknown as typeof fetch;
+  const fetchMock = vi.fn(impl);
+  vi.stubGlobal('fetch', fetchMock);
   return fetchMock;
 };
 
+// Env stubs, global stubs and spies are undone after each test (see vite.config.ts).
 beforeEach(() => {
-  process.env.REACT_APP_API_BASE_URL = API_BASE_URL;
-  jest.spyOn(console, 'log').mockImplementation(() => {});
-});
-
-afterEach(() => {
-  if (originalApiBaseUrl === undefined) {
-    delete process.env.REACT_APP_API_BASE_URL;
-  } else {
-    process.env.REACT_APP_API_BASE_URL = originalApiBaseUrl;
-  }
-  global.fetch = originalFetch;
-  jest.restoreAllMocks();
+  vi.stubEnv('VITE_API_BASE_URL', API_BASE_URL);
+  vi.spyOn(console, 'log').mockImplementation(() => {});
 });
 
 test('renders the message area, fetch button and login button', () => {
@@ -58,12 +44,13 @@ test('does not call the API until the button is clicked', () => {
 });
 
 test('fetches the message from the API and displays it', async () => {
+  const user = userEvent.setup();
   const fetchMock = mockFetch(() =>
     Promise.resolve({ json: () => Promise.resolve({ message: 'hello from the api' }) })
   );
 
   render(<App />);
-  userEvent.click(screen.getByRole('button', { name: 'Click This' }));
+  await user.click(screen.getByRole('button', { name: 'Click This' }));
 
   expect(await screen.findByText('Message from backend: hello from the api')).toBeInTheDocument();
   expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -71,12 +58,13 @@ test('fetches the message from the API and displays it', async () => {
 });
 
 test('logs the error and keeps rendering when the API call fails', async () => {
+  const user = userEvent.setup();
   const error = new Error('network down');
   mockFetch(() => Promise.reject(error));
-  const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
   render(<App />);
-  userEvent.click(screen.getByRole('button', { name: 'Click This' }));
+  await user.click(screen.getByRole('button', { name: 'Click This' }));
 
   await waitFor(() => expect(consoleError).toHaveBeenCalledWith('There was an error!', error));
   expect(screen.getByText('Message from backend:')).toBeInTheDocument();

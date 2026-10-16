@@ -4,17 +4,13 @@ import { msalInstance } from '../../services/authentication/msalConfig';
 
 const Login: React.FC = () => {
     const { signIn, signOut, onAuthStateChanged } = useAuth();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(() => msalInstance.getAllAccounts().length > 0);
 
 
     useEffect(() => {
-      // Register the listener
       onAuthStateChanged((isAuthenticated) => {
         setIsLoggedIn(isAuthenticated);
       });
-  
-      // Optional: Check the current auth state on component mount
-      setIsLoggedIn(msalInstance.getAllAccounts().length > 0);
     }, [onAuthStateChanged]);
   
     const handleAuthAction = () => {

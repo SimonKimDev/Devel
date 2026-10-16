@@ -19,7 +19,7 @@ outputs:
     value: devel-frontend
   output-dir:
     description: Directory containing the built static site.
-    value: devel-frontend/build
+    value: devel-frontend/dist
 
 runs:
   using: composite
@@ -41,11 +41,9 @@ runs:
       working-directory: devel-frontend
       env:
         API_URL: ${{ inputs.api-url }}
-        # CRA turns lint warnings into errors when CI=true; the current app has warnings.
-        CI: 'false'
       run: |
         if [[ -n "$API_URL" ]]; then
-          # Shell env takes precedence over .env.production in CRA.
-          export REACT_APP_API_BASE_URL="${API_URL}/api"
+          # Shell env takes precedence over .env.production in Vite.
+          export VITE_API_BASE_URL="${API_URL}/api"
         fi
         npm run build

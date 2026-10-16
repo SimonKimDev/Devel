@@ -1,5 +1,5 @@
 import { msalInstance } from './msalConfig';
-import { AuthenticationResult, EndSessionRequest, PopupRequest, RedirectRequest } from '@azure/msal-browser';
+import { EndSessionRequest, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 
 // Initialize a listener variable
 let authStateListener: ((isAuthenticated: boolean) => void) | null = null;
