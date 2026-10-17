@@ -30,9 +30,10 @@ Today the frontend reads hardcoded sample posts, and the Go API's post routes ar
 | --- | --- | --- |
 | What's on a page (headings, sections, order) | HTML, written as JSX | `devel-frontend/src/pages/*.tsx` |
 | A reusable piece (card, tag chips, header) | React component | `devel-frontend/src/components/` |
-| Spacing, colors, sizes on one element | CSS, written as Tailwind classes | the `className` on that element |
-| Fonts or the accent color everywhere | Design tokens | `devel-frontend/src/index.css` (`@theme`) |
-| How Markdown looks in posts | Typography plugin | the `prose-*` classes in `src/components/Markdown.tsx` |
+| Spacing, sizes, layout on one element | CSS, written as Tailwind classes | the `className` on that element |
+| Colors, fonts, light and dark themes | Design tokens | `devel-frontend/src/index.css` (`@theme` and `.dark`) |
+| A repeated look (page title, divider, quiet link) | Named classes | `devel-frontend/src/index.css` (`@layer components`) |
+| How Markdown looks in posts | Typography plugin | the `prose-*` classes in `src/components/Markdown.tsx`, colors in `index.css` |
 | Site name, tagline, author | Config | `devel-frontend/src/config/site.ts` |
 | Which URLs exist | Client-side routing | `devel-frontend/src/app/AppRoutes.tsx` |
 | Behavior: state, effects, interactivity | TypeScript, React hooks | `devel-frontend/src/hooks/`, or the component itself |
@@ -46,7 +47,17 @@ Today the frontend reads hardcoded sample posts, and the Go API's post routes ar
 
 ### Styling
 
-Tailwind turns class names into CSS: `text-lg` sets the font size, `dark:bg-zinc-950` applies only in dark mode, and `sm:grid-cols-2` applies from the small breakpoint up. The search box in the [Tailwind docs](https://tailwindcss.com/docs) is the fastest way to find a class. The theme tokens in `index.css` (fonts and the `accent` color) generate classes like `font-serif` and `bg-accent-600`, so changing a token restyles every page.
+Tailwind turns class names into CSS. Each class is one property: `mt-20` is `margin-top: 5rem`, `gap-1` is `gap: 0.25rem` (the spacing scale is 1 = 0.25rem = 4px), and `sm:grid-cols-2` applies from the small breakpoint up. The search box in the [Tailwind docs](https://tailwindcss.com/docs) is the fastest way to find a class, and in Neovim `K` on a class shows its CSS through the Tailwind language server.
+
+All of the design lives in `devel-frontend/src/index.css`, in three parts:
+
+1. **Semantic color tokens** in `@theme`, named for what they're for: `ink` (headings), `fg` (body text), `soft` (summaries), `muted` (dates and quiet links), `line` (borders), `surface` (page background), `subtle` (hover backgrounds) and `accent`. Each becomes classes like `text-ink` or `border-line`. They hold the light-theme values.
+2. **The `.dark` block** swaps those same variables when dark mode is on. That's why components never need `dark:` classes: `text-ink` is dark gray in light mode and near-white in dark mode, automatically. To recolor the site, change values here, and to change the accent, point `--color-brand-*` at another Tailwind palette.
+3. **Named classes** in `@layer components` for looks that repeat across pages: `.page-title`, `.section-title`, `.eyebrow`, `.muted-link` and `.divider`. Change `.page-title` once and every page title follows.
+
+Rule of thumb: if a look repeats or has a meaning, give it a name in `index.css`; if it's one-off spacing or layout for a single spot, leave it as Tailwind classes on the element, where you can see it.
+
+Rendered Markdown uses the typography plugin's `prose` classes. Its colors are mapped to the same tokens at the bottom of `index.css`, so posts follow dark mode too.
 
 ### Data shape
 

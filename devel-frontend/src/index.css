@@ -1,7 +1,7 @@
 /*
- * LEARN: this file is the whole design system. Tailwind generates utility classes
- * (`text-lg`, `bg-accent-600`, ...) from the tokens in @theme, so changing a color or
- * font here restyles every page. See docs/LEARNING.md, "Styling".
+ * LEARN: this file is the whole design system. Tailwind generates utility classes from the
+ * tokens in @theme (`--color-ink` becomes `text-ink`, `bg-ink`, `border-ink`, ...), so
+ * changing a token restyles every page. See docs/LEARNING.md, "Styling".
  */
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
@@ -14,21 +14,51 @@
   --font-serif: 'Fraunces Variable', ui-serif, Georgia, serif;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* The one accent color. Swap indigo for any Tailwind palette (violet, teal, rose...). */
-  --color-accent-50: var(--color-indigo-50);
-  --color-accent-100: var(--color-indigo-100);
-  --color-accent-300: var(--color-indigo-300);
-  --color-accent-400: var(--color-indigo-400);
-  --color-accent-500: var(--color-indigo-500);
-  --color-accent-600: var(--color-indigo-600);
-  --color-accent-700: var(--color-indigo-700);
-  --color-accent-900: var(--color-indigo-900);
-  --color-accent-950: var(--color-indigo-950);
+  /* The brand palette. Swap indigo for any Tailwind palette (violet, teal, rose...). */
+  --color-brand-50: var(--color-indigo-50);
+  --color-brand-300: var(--color-indigo-300);
+  --color-brand-400: var(--color-indigo-400);
+  --color-brand-600: var(--color-indigo-600);
+  --color-brand-700: var(--color-indigo-700);
+  --color-brand-950: var(--color-indigo-950);
+
+  /*
+   * Semantic colors: named for what they're for, not which shade they are. These are the
+   * light-theme values; the `.dark` block below swaps them, so components never need a
+   * `dark:` variant for color.
+   */
+  --color-surface: var(--color-white); /* page background */
+  --color-subtle: var(--color-zinc-100); /* hover backgrounds, inline code, active nav */
+  --color-ink: var(--color-zinc-900); /* headings and emphasized text */
+  --color-fg: var(--color-zinc-700); /* default and body text */
+  --color-soft: var(--color-zinc-600); /* summaries and secondary paragraphs */
+  --color-muted: var(--color-zinc-500); /* dates, captions, quiet links */
+  --color-line: var(--color-zinc-200); /* borders and dividers */
+  --color-line-strong: var(--color-zinc-300); /* hovered borders */
+  --color-lift: color-mix(in oklab, var(--color-zinc-900) 5%, transparent); /* card hover shadow */
+  --color-accent: var(--color-brand-600); /* links, highlights */
+  --color-accent-strong: var(--color-brand-700); /* hovered links, tag text */
+  --color-accent-soft: var(--color-brand-50); /* tag and avatar backgrounds */
 }
 
 @layer base {
+  .dark {
+    --color-surface: var(--color-zinc-950);
+    --color-subtle: var(--color-zinc-800);
+    --color-ink: var(--color-zinc-50);
+    --color-fg: var(--color-zinc-300);
+    --color-soft: var(--color-zinc-400);
+    --color-muted: var(--color-zinc-400);
+    --color-line: var(--color-zinc-800);
+    --color-line-strong: var(--color-zinc-700);
+    --color-lift: color-mix(in oklab, var(--color-black) 30%, transparent);
+    --color-accent: var(--color-brand-400);
+    --color-accent-strong: var(--color-brand-300);
+    --color-accent-soft: var(--color-brand-950);
+  }
+
   html {
-    @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-200;
+    @apply bg-surface text-fg antialiased;
     color-scheme: light;
   }
 
@@ -39,6 +69,52 @@
   body {
     @apply font-sans;
   }
+}
+
+/*
+ * Named patterns that repeat across pages. One-off spacing and layout stay inline as
+ * Tailwind classes on the element, where you can see them.
+ */
+@layer components {
+  .page-title {
+    @apply font-serif text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl;
+  }
+
+  .section-title {
+    @apply font-serif text-2xl font-semibold text-ink;
+  }
+
+  .eyebrow {
+    @apply text-sm font-semibold uppercase tracking-widest text-accent;
+  }
+
+  .muted-link {
+    @apply text-muted transition hover:text-ink;
+  }
+
+  .divider {
+    @apply border-t border-line pt-12;
+  }
+}
+
+/* Rendered Markdown uses the same semantic colors, so it follows dark mode too. */
+.prose {
+  --tw-prose-body: var(--color-fg);
+  --tw-prose-headings: var(--color-ink);
+  --tw-prose-lead: var(--color-soft);
+  --tw-prose-links: var(--color-accent);
+  --tw-prose-bold: var(--color-ink);
+  --tw-prose-counters: var(--color-muted);
+  --tw-prose-bullets: var(--color-line-strong);
+  --tw-prose-hr: var(--color-line);
+  --tw-prose-quotes: var(--color-ink);
+  --tw-prose-quote-borders: var(--color-line);
+  --tw-prose-captions: var(--color-muted);
+  --tw-prose-code: var(--color-ink);
+  --tw-prose-pre-code: var(--color-zinc-200);
+  --tw-prose-pre-bg: var(--color-zinc-900);
+  --tw-prose-th-borders: var(--color-line-strong);
+  --tw-prose-td-borders: var(--color-line);
 }
 
 /* Code blocks stay dark in both themes. The prose `pre` supplies the background and padding;
