@@ -4,10 +4,7 @@ export function TagList({ tags }: { tags?: string[] }) {
   return (
     <ul aria-label="Tags" className="flex flex-wrap gap-2">
       {tags.map((tag) => (
-        <li
-          key={tag}
-          className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent-strong"
-        >
+        <li key={tag} className="tag">
           {tag}
         </li>
       ))}

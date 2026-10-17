@@ -73,10 +73,11 @@
 }
 
 /*
- * Named patterns that repeat across pages. One-off spacing and layout stay inline as
- * Tailwind classes on the element, where you can see them.
+ * Named patterns. Rule of thumb: a look that repeats or has a meaning gets a name here;
+ * one-off spacing and layout stay inline as Tailwind classes on the element.
  */
 @layer components {
+  /* Typography */
   .page-title {
     @apply font-serif text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl;
   }
@@ -89,17 +90,105 @@
     @apply text-sm font-semibold uppercase tracking-widest text-accent;
   }
 
-  .muted-link {
-    @apply text-muted transition hover:text-ink;
+  /* Layout */
+  .page-width {
+    @apply mx-auto w-full max-w-5xl px-5;
+  }
+
+  .reading-width {
+    @apply max-w-[68ch];
   }
 
   .divider {
     @apply border-t border-line pt-12;
   }
+
+  /* Links and buttons */
+  .muted-link {
+    @apply text-muted transition hover:text-ink;
+  }
+
+  .back-link {
+    @apply inline-flex items-center gap-1 text-sm text-muted transition hover:text-ink;
+  }
+
+  .nav-link {
+    @apply rounded-full px-3 py-1.5 text-sm font-medium text-muted transition hover:text-ink;
+  }
+
+  /* React Router's NavLink marks the current page with aria-current="page". */
+  .nav-link[aria-current='page'] {
+    @apply bg-subtle text-ink;
+  }
+
+  .icon-button {
+    @apply rounded-full p-2 text-muted transition hover:bg-subtle hover:text-ink;
+  }
+
+  .button {
+    @apply inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-surface hover:bg-ink/80;
+  }
+
+  /* Header */
+  .site-header {
+    @apply sticky top-0 z-10 border-b border-line/70 bg-surface/80 backdrop-blur;
+  }
+
+  .brand {
+    @apply flex items-center gap-2 font-serif text-xl font-semibold tracking-tight text-ink;
+  }
+
+  .brand-dot {
+    @apply inline-block size-2.5 rounded-full bg-accent;
+  }
+
+  /* Post cards and metadata */
+  .card {
+    @apply relative flex flex-col gap-3 rounded-2xl border border-line p-6 transition;
+    @apply hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lg hover:shadow-lift;
+  }
+
+  .card-title {
+    @apply font-serif font-semibold tracking-tight text-ink;
+  }
+
+  .card:hover .card-title {
+    @apply text-accent-strong;
+  }
+
+  /* Stretches a link over its positioned parent, so the whole card is clickable. */
+  .stretched-link::after {
+    @apply absolute inset-0 content-[''];
+  }
+
+  .tag {
+    @apply rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent-strong;
+  }
+
+  .avatar {
+    @apply flex size-10 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent-strong;
+  }
+
+  /* Post page */
+  .post-layout {
+    @apply lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-16;
+  }
+
+  .post-header {
+    @apply flex flex-col gap-5 border-b border-line pb-10;
+  }
 }
 
-/* Rendered Markdown uses the same semantic colors, so it follows dark mode too. */
-.prose {
+/*
+ * Rendered Markdown (posts, About). Tailwind's typography plugin (`prose`) does the heavy
+ * lifting; `.article` holds our tweaks on top. react-markdown generates the tags, so we
+ * can't put classes on them; child selectors reach them instead. These rules sit outside
+ * any @layer on purpose: unlayered CSS beats Tailwind's layers, so they win over `prose`.
+ */
+.article {
+  max-width: none;
+
+  /* Prose colors come from our semantic tokens, so Markdown follows dark mode too. */
   --tw-prose-body: var(--color-fg);
   --tw-prose-headings: var(--color-ink);
   --tw-prose-lead: var(--color-soft);
@@ -118,11 +207,38 @@
   --tw-prose-td-borders: var(--color-line);
 }
 
-/* Code blocks stay dark in both themes. The prose `pre` supplies the background and padding;
-   inline code inside it shouldn't add its own pill. */
-.prose pre code,
-.prose pre .hljs {
+/* Same set as prose's "headings", which includes table headers. */
+.article :is(h1, h2, h3, h4, h5, h6, th) {
+  @apply scroll-mt-24 font-serif tracking-tight;
+}
+
+.article a {
+  @apply underline-offset-2 hover:text-accent-strong;
+}
+
+/* Inline code gets a subtle pill instead of prose's backticks. */
+.article code {
+  @apply rounded bg-subtle px-1 py-0.5 font-normal;
+}
+
+.article code::before,
+.article code::after {
+  content: none;
+}
+
+.article pre {
+  @apply rounded-xl ring-1 ring-white/10;
+}
+
+/* Code blocks stay dark in both themes. The `pre` supplies the background and padding;
+   the code inside it shouldn't add its own pill. */
+.article pre code,
+.article pre .hljs {
   background: transparent;
   padding: 0;
   border-radius: 0;
+}
+
+.article th {
+  @apply text-left;
 }

@@ -15,7 +15,7 @@ export function Layout() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-12 sm:py-16">
+      <main className="page-width flex-1 py-12 sm:py-16">
         <Outlet />
       </main>
       <Footer />
