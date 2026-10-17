@@ -10,7 +10,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={`Switch to ${next} theme`}
       title={`Switch to ${next} theme`}
-      className="muted-link rounded-full p-2 hover:bg-subtle"
+      className="icon-button"
     >
       {theme === 'dark' ? (
         // Sun

@@ -40,24 +40,18 @@ function PostView({ post, morePosts }: { post: Post; morePosts: Post[] }) {
 
   return (
     <>
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-16">
-        <article className="min-w-0 max-w-[68ch]">
-          <Link
-            to="/"
-            className="muted-link mb-8 inline-flex items-center gap-1 text-sm"
-          >
+      <div className="post-layout">
+        <article className="reading-width min-w-0">
+          <Link to="/" className="back-link mb-8">
             <span aria-hidden="true">←</span> All posts
           </Link>
 
-          <header className="mb-10 flex flex-col gap-5 border-b border-line pb-10">
+          <header className="post-header mb-10">
             <TagList tags={post.tags} />
             <h1 className="page-title">{post.title}</h1>
             {post.summary && <p className="text-xl leading-relaxed text-soft">{post.summary}</p>}
             <div className="flex items-center gap-3">
-              <span
-                aria-hidden="true"
-                className="flex size-10 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent-strong"
-              >
+              <span aria-hidden="true" className="avatar">
                 {site.author
                   .split(' ')
                   .map((part) => part[0])

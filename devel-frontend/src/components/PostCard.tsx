@@ -7,25 +7,15 @@ import { TagList } from './TagList';
 // it renders whatever post it's given, which makes it easy to reuse and to test.
 export function PostCard({ post, featured = false }: { post: Post; featured?: boolean }) {
   return (
-    <article
-      className={`group relative flex flex-col gap-3 rounded-2xl border border-line p-6 transition hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lg hover:shadow-lift ${
-        featured ? 'sm:col-span-2 sm:p-8' : ''
-      }`}
-    >
+    <article className={featured ? 'card sm:col-span-2 sm:p-8' : 'card'}>
       <TagList tags={post.tags} />
-      <h2
-        className={`font-serif font-semibold tracking-tight text-ink group-hover:text-accent-strong ${
-          featured ? 'text-3xl sm:text-4xl' : 'text-2xl'
-        }`}
-      >
-        {/* The ::after overlay makes the whole card clickable while keeping one real link. */}
-        <Link to={`/posts/${post.slug}`} className="after:absolute after:inset-0">
+      <h2 className={featured ? 'card-title text-3xl sm:text-4xl' : 'card-title text-2xl'}>
+        {/* The stretched link makes the whole card clickable while keeping one real link. */}
+        <Link to={`/posts/${post.slug}`} className="stretched-link">
           {post.title}
         </Link>
       </h2>
-      {post.summary && (
-        <p className={`text-soft ${featured ? 'text-lg' : 'line-clamp-3'}`}>{post.summary}</p>
-      )}
+      {post.summary && <p className={featured ? 'text-lg text-soft' : 'line-clamp-3 text-soft'}>{post.summary}</p>}
       <div className="mt-auto pt-2">
         <PostMeta post={post} />
       </div>

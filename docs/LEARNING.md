@@ -32,8 +32,8 @@ Today the frontend reads hardcoded sample posts, and the Go API's post routes ar
 | A reusable piece (card, tag chips, header) | React component | `devel-frontend/src/components/` |
 | Spacing, sizes, layout on one element | CSS, written as Tailwind classes | the `className` on that element |
 | Colors, fonts, light and dark themes | Design tokens | `devel-frontend/src/index.css` (`@theme` and `.dark`) |
-| A repeated look (page title, divider, quiet link) | Named classes | `devel-frontend/src/index.css` (`@layer components`) |
-| How Markdown looks in posts | Typography plugin | the `prose-*` classes in `src/components/Markdown.tsx`, colors in `index.css` |
+| A repeated look (page title, card, tag, button) | Named classes | `devel-frontend/src/index.css` (`@layer components`) |
+| How Markdown looks in posts | Typography plugin | `prose` in `src/components/Markdown.tsx`, our tweaks in `.article` in `index.css` |
 | Site name, tagline, author | Config | `devel-frontend/src/config/site.ts` |
 | Which URLs exist | Client-side routing | `devel-frontend/src/app/AppRoutes.tsx` |
 | Behavior: state, effects, interactivity | TypeScript, React hooks | `devel-frontend/src/hooks/`, or the component itself |
@@ -53,11 +53,13 @@ All of the design lives in `devel-frontend/src/index.css`, in three parts:
 
 1. **Semantic color tokens** in `@theme`, named for what they're for: `ink` (headings), `fg` (body text), `soft` (summaries), `muted` (dates and quiet links), `line` (borders), `surface` (page background), `subtle` (hover backgrounds) and `accent`. Each becomes classes like `text-ink` or `border-line`. They hold the light-theme values.
 2. **The `.dark` block** swaps those same variables when dark mode is on. That's why components never need `dark:` classes: `text-ink` is dark gray in light mode and near-white in dark mode, automatically. To recolor the site, change values here, and to change the accent, point `--color-brand-*` at another Tailwind palette.
-3. **Named classes** in `@layer components` for looks that repeat across pages: `.page-title`, `.section-title`, `.eyebrow`, `.muted-link` and `.divider`. Change `.page-title` once and every page title follows.
+3. **Named classes** in `@layer components` for looks that repeat or mean something: text styles (`.page-title`, `.eyebrow`), layout (`.page-width`, `.reading-width`), links and buttons (`.nav-link`, `.button`), and pieces like `.card`, `.tag` and `.avatar`. Change `.page-title` once and every page title follows. A named class and inline utilities mix freely: `className="button mt-8"`.
 
-Rule of thumb: if a look repeats or has a meaning, give it a name in `index.css`; if it's one-off spacing or layout for a single spot, leave it as Tailwind classes on the element, where you can see it.
+Rule of thumb: if a look repeats or has a meaning, give it a name in `index.css`; if it's one-off spacing or layout for a single spot, leave it as Tailwind classes on the element, where you can see it. When a `className` grows past one line, that's usually the sign it wants a name.
 
-Rendered Markdown uses the typography plugin's `prose` classes. Its colors are mapped to the same tokens at the bottom of `index.css`, so posts follow dark mode too.
+State can live in CSS instead of in JavaScript. `.nav-link[aria-current='page']` styles the current page's link, because React Router's `NavLink` sets `aria-current="page"` on it. `.card:hover .card-title` colors a card's title when the card is hovered (Tailwind's version of this is `group` and `group-hover:`).
+
+Rendered Markdown is HTML that react-markdown generates, so there are no tags to put classes on. It gets `prose` (the [typography plugin](https://github.com/tailwindlabs/tailwindcss-typography)) for the base look, plus `.article` in `index.css` for our tweaks: child selectors like `.article code` and `.article a`, and the prose colors mapped to our tokens so posts follow dark mode. Those rules sit outside `@layer` on purpose, because CSS that isn't in a layer beats every layer, including the one `prose` lives in. You could write the same tweaks inline as `prose-code:bg-subtle prose-a:underline-offset-2 …`, which is how this started, and why it was a 400-character class name.
 
 ### Data shape
 

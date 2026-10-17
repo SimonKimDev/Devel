@@ -5,11 +5,11 @@ export function AboutPage() {
   useDocumentTitle('About');
 
   return (
-    <article className="max-w-[68ch]">
+    <article className="reading-width">
       <h1 className="page-title mb-8">
         About
       </h1>
-      <div className="prose max-w-none hover:prose-a:text-accent-strong">
+      <div className="prose article">
         <p>
           I'm {site.author}, a backend engineer who builds distributed services for a living. {site.name} is where I
           learn the rest of the stack in public: the browser, TypeScript and React, and how a click turns into a
