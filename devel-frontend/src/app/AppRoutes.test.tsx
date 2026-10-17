@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
+import { site } from '../config/site';
 import { samplePosts } from '../data/samplePosts';
 import { AppRoutes } from './AppRoutes';
 
@@ -46,7 +47,7 @@ describe('post page', () => {
     expect(screen.getByText('Simon Kim')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Layers' })).toBeInTheDocument();
     expect(screen.getByText(/http\.NewServeMux/)).toBeInTheDocument();
-    expect(document.title).toBe(`${post.title} · Devel`);
+    expect(document.title).toBe(`${post.title} · ${site.name}`);
   });
 
   test('table of contents links point at the rendered headings', async () => {

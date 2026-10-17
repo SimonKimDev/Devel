@@ -1,6 +1,6 @@
 # Copilot instructions for Devel
 
-Devel is a personal blog: a React + TypeScript SPA built with Vite (`devel-frontend/`) and a Go API on the standard library `net/http` router (`blog-engine/`). It's hosted on Azure Static Web Apps and Azure Container Apps, defined in Bicep (`infra/`), and deployed by GitHub Actions (`.github/`). The plan of work lives in the repo's issues and milestones.
+Devel is the repository for studioindigoblue.com, the blog of Studio Indigoblue (Simon Kim's one-person studio): a React + TypeScript SPA built with Vite (`devel-frontend/`) and a Go API on the standard library `net/http` router (`blog-engine/`). It's hosted on Azure Static Web Apps and Azure Container Apps, defined in Bicep (`infra/`), and deployed by GitHub Actions (`.github/`). The plan of work lives in the repo's issues and milestones.
 
 The owner is learning full-stack development through this project. He's comfortable with C# and backend services, has some Go, and is new to TypeScript, React and the frontend ecosystem. When explaining or suggesting code, say why, and link the docs.
 

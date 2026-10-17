@@ -1,6 +1,6 @@
 Every developer blog starts with a post like this one, so let's get it over with.
 
-Devel is my development diary. I'm a backend engineer by day, comfortable with C# and services, and this site is where I teach myself the rest of the stack: the browser, TypeScript, React, and everything between a click and a database row.
+Studio Indigoblue is my one-person studio, and this is its development diary. I'm a backend engineer by day, comfortable with C# and services, and this site is where I teach myself the rest of the stack: the browser, TypeScript, React, and everything between a click and a database row.
 
 ## What lives here
 
