@@ -118,7 +118,15 @@ For every finding raised by only one reviewer, ask the other reviewer to assess 
 
 ### 4. Decide the verdict
 
-Set confidence (0–100) from how complete and consistent the round was: lower it when a reviewer was unavailable, when disputes remain, or when the diff was too large to review fully.
+Compute confidence (0–100) with this rubric, not by judgment. It measures how much to trust this round of review, not how good the code is:
+
+1. Start at 100.
+2. Subtract 10 for each disputed finding (one reviewer raised it, the other disagreed), whether you kept or dropped it.
+3. Subtract 5 for each kept finding that both reviewers raised with different severities.
+4. Subtract 20 if any changed file couldn't be reviewed in full (for example, the diff was truncated or too large).
+5. Floor at 0. Finally, if a reviewer was unavailable, cap at 40.
+
+Show the arithmetic in the table, for example `85/100 (100 − 10 disputed − 5 severity mismatch)`.
 
 The verdict is **ready** only when all of these hold; otherwise it's **needs-changes**:
 - no published finding has severity high or medium (low findings alone don't block),
@@ -149,7 +157,7 @@ The verdict is **ready** only when all of these hold; otherwise it's **needs-cha
 | Dropped | <n> |
 | Published | <n> (high <n>, medium <n>, low <n>) |
 | Consensus reached | <True if there are no disputed findings, else False> |
-| Review confidence | <n>/100 |
+| Review confidence | <n>/100 (<the rubric arithmetic>) |
 
 </details>
 ```
