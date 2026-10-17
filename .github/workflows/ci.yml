@@ -27,6 +27,7 @@ jobs:
       frontend: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.frontend == 'true' }}
       api: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.api == 'true' }}
       infra: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.infra == 'true' }}
+      agentic: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.agentic == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
@@ -43,6 +44,13 @@ jobs:
               - '.github/workflows/ci.yml'
             infra:
               - 'infra/**'
+              - '.github/workflows/ci.yml'
+            agentic:
+              - '.github/workflows/*.md'
+              - '.github/workflows/*.lock.yml'
+              - '.github/workflows/shared/**'
+              - '.github/agents/**'
+              - '.github/aw/**'
               - '.github/workflows/ci.yml'
 
   frontend-build:
@@ -122,6 +130,29 @@ jobs:
             echo "::endgroup::"
           done
           az bicep build-params --file infra/main.bicepparam --stdout > /dev/null
+
+  # The .lock.yml files are what Actions runs, but they're generated from the .md sources
+  # by `gh aw compile`, and the PR reviewer skips them. This proves they match.
+  agentic-lock:
+    needs: changes
+    if: needs.changes.outputs.agentic == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install gh-aw
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Same version that compiled the committed lock files; bump both together.
+        run: gh extension install github/gh-aw --pin v0.92.0
+      - name: Compile and compare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh aw compile
+          if ! git diff --exit-code -- '.github/workflows/*.lock.yml'; then
+            echo "::error::The .lock.yml files don't match their .md sources. Run 'gh aw compile' and commit the result."
+            exit 1
+          fi
 
   infra-what-if:
     needs: [changes, infra]
