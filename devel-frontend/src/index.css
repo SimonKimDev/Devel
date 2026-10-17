@@ -14,13 +14,14 @@
   --font-serif: 'Fraunces Variable', ui-serif, Georgia, serif;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* The brand palette. Swap indigo for any Tailwind palette (violet, teal, rose...). */
-  --color-brand-50: var(--color-indigo-50);
-  --color-brand-300: var(--color-indigo-300);
-  --color-brand-400: var(--color-indigo-400);
-  --color-brand-600: var(--color-indigo-600);
-  --color-brand-700: var(--color-indigo-700);
-  --color-brand-950: var(--color-indigo-950);
+  /* The brand palette: Tailwind's blue, whose deep shades are the "indigo blue" of the
+     favicon (blue-900 is #1e3a8a). Swap it for any Tailwind palette to recolor the site. */
+  --color-brand-50: var(--color-blue-50);
+  --color-brand-300: var(--color-blue-300);
+  --color-brand-400: var(--color-blue-400);
+  --color-brand-800: var(--color-blue-800);
+  --color-brand-900: var(--color-blue-900);
+  --color-brand-950: var(--color-blue-950);
 
   /*
    * Semantic colors: named for what they're for, not which shade they are. These are the
@@ -36,8 +37,8 @@
   --color-line: var(--color-zinc-200); /* borders and dividers */
   --color-line-strong: var(--color-zinc-300); /* hovered borders */
   --color-lift: color-mix(in oklab, var(--color-zinc-900) 5%, transparent); /* card hover shadow */
-  --color-accent: var(--color-brand-600); /* links, highlights */
-  --color-accent-strong: var(--color-brand-700); /* hovered links, tag text */
+  --color-accent: var(--color-brand-800); /* links, highlights */
+  --color-accent-strong: var(--color-brand-900); /* hovered links, tag text */
   --color-accent-soft: var(--color-brand-50); /* tag and avatar backgrounds */
 }
 
