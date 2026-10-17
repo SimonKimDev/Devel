@@ -2,7 +2,7 @@ name: Frontend preview
 
 # Each PR that touches the frontend gets its own Static Web Apps preview URL
 # (Free tier allows 3 at a time); it is removed when the PR closes.
-# Preview origins aren't in the API's CORS list, so API calls and sign-in only work in production.
+# Preview origins aren't in the API's CORS list, so API calls only work in production.
 
 on:
   pull_request:
