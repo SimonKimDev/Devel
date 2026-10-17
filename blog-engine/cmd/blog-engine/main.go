@@ -54,6 +54,9 @@ func run() error {
 
 	log.Printf("loaded config %s (env %q)", cfgPath, cfg.Env)
 
+	// LEARN: dependency injection. postSvc is an interface; main picks the implementation
+	// (Postgres today, or an in-memory store in exercise #58) and hands it to the router.
+	// See docs/LEARNING.md, "Wiring to the Go API".
 	var postSvc application.BlogPoster
 
 	if cfg.Database.Enabled {

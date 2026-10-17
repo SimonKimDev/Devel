@@ -26,6 +26,8 @@ func RegisterMessageRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/message", handlers.GetMessage)
 }
 
+// LEARN: this is the URL contract the frontend's services/posts.ts calls. A route here
+// plus a handler in internal/api/handlers is all it takes to expose a new endpoint.
 func RegisterPostRoutes(mux *http.ServeMux, postSvc application.BlogPoster) {
 	handler := handlers.NewPostHandler(postSvc)
 

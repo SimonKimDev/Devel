@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+// LEARN: the json tags are the API's wire format. devel-frontend/src/types/post.ts
+// mirrors them field for field; change both together.
 type Post struct {
 	PostID        int64     `json:"post_id"`
 	AuthorID      int64     `json:"author_id"`

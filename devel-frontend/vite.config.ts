@@ -1,11 +1,12 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
-    // Port 3000 is what the API's dev CORS config and the Entra redirect URIs expect.
+    // Port 3000 is what the API's dev CORS config expects.
     port: 3000,
     strictPort: true,
   },

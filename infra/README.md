@@ -36,7 +36,7 @@ Everything lives in resource group `rg-devel-blog` (westus2), subscription `Simo
   Each step runs only when its part changed. The infra step watches `main.bicep`, `main.bicepparam` and `modules/` only, so edits to this README, `bootstrap.bicep` or `budget.bicep` don't redeploy anything. A change to `deploy.yml` itself runs all three.
   
   The Bicep deployment (`devel-main`) is the source of truth for names and URLs; later jobs read its outputs. Infra-only changes keep the image the Container App is actually running, read from Azure, so a failed or cancelled deploy can't fall back to the placeholder.
-- **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. The API and sign-in won't work there, because the preview origin isn't allowed by CORS or Entra.
+- **Frontend preview** (`frontend-preview.yml`): PRs touching the frontend get a temporary Static Web Apps URL. Calls to the API won't work there, because the preview origin isn't in the API's CORS list.
 - **PR review** (`pr-review.md`, `pr-review-command.md`): an AI reviewer, written as [GitHub Agentic Workflows](https://github.github.com/gh-aw/). It reviews each PR when it opens and after every push, posts inline comments, and commenting `/review` runs it again.
   - How it works (`shared/pr-review.md`): two reviewers on different models (`claude-reviewer`, `gpt-reviewer`) review the PR independently. A lead agent merges their findings, asks each reviewer to check what only the other found, verifies disputes against the code, and posts the result with a *Review context and counts* table. `Consensus reached: False` or a low reliability score means the round deserves a second look; comment `/review` to retry.
   - **It's advisory, not a required check.** Each review ends with a verdict (*Ready to merge* or *Needs changes*) and two scores and sets a `pr-review` commit status (success or failure) that shows on the PR but doesn't block merging. Ready means no high- or medium-severity findings, both reviewers completed, and reliability of at least 60. Both scores are fixed rubrics: **readiness** is how clean the code is (100, −40 per high, −15 per medium, −3 per low finding); **reliability** is how much to trust the review itself (100, −10 per disputed finding, −5 per kept finding the reviewers rated differently, −20 if the diff couldn't be fully reviewed, capped at 40 if a reviewer was unavailable). `pr-review-gate.yml` sets the status to pending when a commit is pushed, and to success (skipped) for drafts and for Dependabot's own pushes; commits you push onto a Dependabot PR are reviewed. Fork PRs can't get a status (their token is read-only). If the review crashes, the status stays pending; comment `/review` to retry. To make it a hard gate later, add `pr-review` to the ruleset's required checks.
@@ -82,7 +82,6 @@ Copy the outputs into the GitHub repo settings:
 
 After the first Deploy run pushes the API image, open the `devel-api` package settings on GitHub. Set its visibility to **Public**, so Container Apps can pull it without credentials. Then re-run the failed job.
 
-For MSAL sign-in, add the site URL as a SPA redirect URI on the `Devel` app registration.
 
 ## Deploying by hand
 
@@ -123,4 +122,3 @@ To change or move the domain:
    Use `--validation-method cname-delegation` and a `CNAME` record instead for a subdomain such as `blog.example.com`.
 2. Create the DNS records above and wait for `az staticwebapp hostname show ... --query status` to report `Ready`.
 3. Set `customDomain` in `main.bicepparam` and push. The domain is added to the API's CORS allow-list automatically.
-4. Add `https://<domain>` as a SPA redirect URI on the `Devel` app registration, for sign-in.

@@ -11,6 +11,8 @@ import (
 // ErrPostNotFound is returned when no post matches the given ID.
 var ErrPostNotFound = errors.New("post not found")
 
+// LEARN: handlers depend on this interface, not on Postgres, so any type with these
+// methods can serve posts: the database service below, an in-memory store, or a test fake.
 type BlogPoster interface {
 	CreatePost(ctx context.Context, post *blog.Post) error
 	GetAllPost(ctx context.Context) ([]blog.Post, error)
