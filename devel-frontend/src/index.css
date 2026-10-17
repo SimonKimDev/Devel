@@ -1,13 +1,51 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/*
+ * LEARN: this file is the whole design system. Tailwind generates utility classes
+ * (`text-lg`, `bg-accent-600`, ...) from the tokens in @theme, so changing a color or
+ * font here restyles every page. See docs/LEARNING.md, "Styling".
+ */
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@import 'highlight.js/styles/github-dark.css';
+
+/* Dark mode follows a `dark` class on <html> (set by public/theme-init.js and useTheme). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-serif: 'Fraunces Variable', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* The one accent color. Swap indigo for any Tailwind palette (violet, teal, rose...). */
+  --color-accent-50: var(--color-indigo-50);
+  --color-accent-100: var(--color-indigo-100);
+  --color-accent-300: var(--color-indigo-300);
+  --color-accent-400: var(--color-indigo-400);
+  --color-accent-500: var(--color-indigo-500);
+  --color-accent-600: var(--color-indigo-600);
+  --color-accent-700: var(--color-indigo-700);
+  --color-accent-900: var(--color-indigo-900);
+  --color-accent-950: var(--color-indigo-950);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer base {
+  html {
+    @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-200;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply font-sans;
+  }
+}
+
+/* Code blocks stay dark in both themes. The prose `pre` supplies the background and padding;
+   inline code inside it shouldn't add its own pill. */
+.prose pre code,
+.prose pre .hljs {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
