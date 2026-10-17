@@ -2,8 +2,11 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { site } from '../config/site';
-import { samplePosts } from '../data/samplePosts';
+import { fixturePosts } from '../test/fixturePosts';
 import { AppRoutes } from './AppRoutes';
+
+// Tests use fake posts, so they don't break when real posts change.
+vi.mock('../data/samplePosts', async () => ({ samplePosts: (await import('../test/fixturePosts')).fixturePosts }));
 
 function renderAt(path: string) {
   return render(
@@ -13,7 +16,7 @@ function renderAt(path: string) {
   );
 }
 
-const newest = [...samplePosts].sort((a, b) => b.date_published.localeCompare(a.date_published));
+const newest = [...fixturePosts].sort((a, b) => b.date_published.localeCompare(a.date_published));
 
 afterEach(() => {
   document.documentElement.classList.remove('dark');
@@ -38,7 +41,7 @@ describe('home page', () => {
 });
 
 describe('post page', () => {
-  const post = samplePosts.find((p) => p.slug === 'net-http-router')!;
+  const post = fixturePosts.find((p) => p.slug === 'routing-post')!;
 
   test('renders the title, byline and Markdown body', async () => {
     renderAt(`/posts/${post.slug}`);
@@ -91,7 +94,7 @@ test('header navigation goes to the About page', async () => {
 
   await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'About' }));
 
-  expect(await screen.findByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: /if we feel like it/ })).toBeInTheDocument();
 });
 
 test('theme toggle switches to dark and remembers it', async () => {

@@ -34,7 +34,7 @@ Today the frontend reads hardcoded sample posts, and the Go API's post routes ar
 | Colors, fonts, light and dark themes | Design tokens | `devel-frontend/src/index.css` (`@theme` and `.dark`) |
 | A repeated look (page title, card, tag, button) | Named classes | `devel-frontend/src/index.css` (`@layer components`) |
 | How Markdown looks in posts | Typography plugin | `prose` in `src/components/Markdown.tsx`, our tweaks in `.article` in `index.css` |
-| Site name, tagline, author | Config | `devel-frontend/src/config/site.ts` |
+| Site name, author, GitHub link | Config | `devel-frontend/src/config/site.ts` |
 | Which URLs exist | Client-side routing | `devel-frontend/src/app/AppRoutes.tsx` |
 | Behavior: state, effects, interactivity | TypeScript, React hooks | `devel-frontend/src/hooks/`, or the component itself |
 | Pure logic (reading time, headings) | TypeScript functions | `devel-frontend/src/lib/` (each has a `.test.ts`) |

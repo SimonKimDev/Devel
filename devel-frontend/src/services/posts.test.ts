@@ -1,5 +1,7 @@
 import { getPostBySlug, getPosts } from './posts';
 
+vi.mock('../data/samplePosts', async () => ({ samplePosts: (await import('../test/fixturePosts')).fixturePosts }));
+
 test('getPosts returns posts newest first', async () => {
   const posts = await getPosts();
   const dates = posts.map((p) => p.date_published);
