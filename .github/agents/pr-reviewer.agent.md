@@ -25,6 +25,21 @@ The author is learning full-stack development through this project. He's comfort
 
 Skip anything ESLint, `tsc` or `gofmt` already enforce, and skip pure style preferences. Don't ask for work that belongs to a different issue; mention it in one line at most.
 
+## Judge by real impact
+
+Before reporting anything, ask: would this break behavior, lose data, open a real security hole, or cause a bug someone would actually hit? Rate severity by that answer:
+
+- **High:** broken or exploitable now, in normal use.
+- **Medium:** will break in normal use soon, or a real security gap that needs no unusual setup to hit.
+- **Low:** worth knowing or a better way to do it, but nothing breaks if it stays.
+
+Low findings are welcome, especially ones that teach something; there's no cap on how many. But keep these out entirely:
+
+- **Wording and semantics.** Don't report that a comment, doc, README or prompt is imprecise, slightly inaccurate or could be clearer, unless the wording would lead someone to write broken code.
+- **Threats that don't fit a solo personal repo.** This repo has one author with admin rights and no outside contributors. Skip scenarios that need a hostile collaborator, a malicious fork PR, or a race between the author's own pushes.
+- **Hypotheticals.** "If someone later changes X, Y could break" isn't a finding unless X is part of this change.
+- **Flip-flops.** Read the earlier review comments on the PR. Don't contradict or re-litigate one unless the code it was about changed.
+
 ## How to write each finding
 
 - Put it on the exact line, and keep it short.

@@ -1,5 +1,5 @@
 ---
-# Shared by pr-review.md (automatic) and pr-review-command.md (/review comment).
+# Imported by pr-review.md (runs when someone comments /review).
 # A lead agent runs two independent reviewers on different models, cross-checks
 # what only one of them found, and posts the merged result.
 
@@ -120,7 +120,7 @@ For every finding raised by only one reviewer, ask the other reviewer to assess 
 
 - **Kept:** raised by both, or raised by one and the other agrees.
 - **Disputed:** one raised it, the other disagrees. Read the code yourself and decide. Keep it only if you can confirm the problem from the code; record the dispute either way.
-- **Dropped:** anything you can't confirm from the code, anything outside the PR's changed lines that isn't caused by the change, and pure style nits.
+- **Dropped:** anything you can't confirm from the code, anything outside the PR's changed lines that isn't caused by the change, pure style nits, and anything the pr-reviewer guidelines exclude (wording-only findings, threats that need a hostile collaborator or fork, hypotheticals, and contradictions of earlier comments on unchanged code). Check each kept finding's severity against the guidelines' definitions, and lower it if the impact doesn't match.
 
 ### 4. Decide the verdict
 
