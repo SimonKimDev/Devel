@@ -6,4 +6,4 @@ param apiTargetPort = 18080
 param extraCorsOrigins = [
   'http://localhost:3000'
 ]
-param customDomain = 'simonkimdevel.com'
+param customDomain = 'studioindigoblue.com'

@@ -1,5 +1,5 @@
 import type { Post } from '../types/post';
-import helloDevel from './posts/hello-devel.md?raw';
+import helloIndigoblue from './posts/hello-indigoblue.md?raw';
 import aksToContainerApps from './posts/aks-to-container-apps.md?raw';
 import craToVite from './posts/cra-to-vite.md?raw';
 import netHttpRouter from './posts/net-http-router.md?raw';
@@ -12,10 +12,10 @@ export const samplePosts: Post[] = [
   {
     post_id: 1,
     author_id: 1,
-    title: 'Hello, Devel',
-    slug: 'hello-devel',
+    title: 'Hello, Studio Indigoblue',
+    slug: 'hello-indigoblue',
     summary: 'Why this blog exists, what it will cover, and how the site itself is built.',
-    body_markdown: helloDevel,
+    body_markdown: helloIndigoblue,
     date_published: '2026-09-02T09:00:00Z',
     date_updated: '2026-09-02T09:00:00Z',
     tags: ['meta'],

@@ -90,7 +90,9 @@ Omit `apiImage` to run the public placeholder image. Always use `-n devel-main`,
 
 ## Custom domain
 
-The site is served at `https://simonkimdevel.com`. The domain is registered at Cloudflare, so its DNS lives in Cloudflare and is managed by hand, not in Bicep. `www` redirects to the apex at Cloudflare.
+The site is served at `https://studioindigoblue.com`. The domain is registered at Cloudflare, so its DNS lives in Cloudflare and is managed by hand, not in Bicep. `www` redirects to the apex at Cloudflare.
+
+The previous domain, `simonkimdevel.com`, is also registered at Cloudflare and redirects every path to `https://studioindigoblue.com` with a Cloudflare redirect rule until it expires.
 
 Cloudflare DNS records:
 
