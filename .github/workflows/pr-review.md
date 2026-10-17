@@ -1,14 +1,11 @@
 ---
-description: Reviews each pull request on open and on every push with two reviewers on different models and posts inline review comments.
+description: Reviews a pull request with two reviewers on different models when someone with write access comments /review on it.
 
+# On demand only: an automatic review on every push burned through the Copilot rate limit.
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-
-# Drafts and Dependabot's own pushes never start a run (Dependabot runs get no secrets,
-# so they'd fail). Your own pushes to a Dependabot PR are reviewed. /review still works
-# on a draft when you want feedback early.
-if: github.event.pull_request.draft == false && github.actor != 'dependabot[bot]'
+  slash_command:
+    name: review
+    events: [pull_request_comment]
 
 permissions:
   contents: read
@@ -30,4 +27,4 @@ timeout-minutes: 40
 
 # PR review
 
-Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}, following the steps below.
+Review pull request #${{ github.event.issue.number }} in ${{ github.repository }}, following the steps below. If earlier reviews exist on this PR, focus on what changed since the last one, and don't repeat comments that were already addressed.
