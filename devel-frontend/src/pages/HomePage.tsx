@@ -16,13 +16,13 @@ export function HomePage() {
   return (
     <>
       <section className="mb-12 max-w-2xl sm:mb-16">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-accent-600 dark:text-accent-400">
+        <p className="eyebrow mb-3">
           Development diary
         </p>
-        <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
+        <h1 className="page-title">
           {site.tagline}
         </h1>
-        <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">{site.description}</p>
+        <p className="mt-4 text-lg text-soft">{site.description}</p>
       </section>
 
       {posts.status === 'loading' && <StatusMessage title="Loading posts…" />}

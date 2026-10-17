@@ -6,10 +6,10 @@ export function AboutPage() {
 
   return (
     <article className="max-w-[68ch]">
-      <h1 className="mb-8 font-serif text-4xl font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
+      <h1 className="page-title mb-8">
         About
       </h1>
-      <div className="prose prose-zinc max-w-none dark:prose-invert prose-a:text-accent-600 dark:prose-a:text-accent-400">
+      <div className="prose max-w-none hover:prose-a:text-accent-strong">
         <p>
           I'm {site.author}, a backend engineer who builds distributed services for a living. {site.name} is where I
           learn the rest of the stack in public: the browser, TypeScript and React, and how a click turns into a

@@ -44,21 +44,19 @@ function PostView({ post, morePosts }: { post: Post; morePosts: Post[] }) {
         <article className="min-w-0 max-w-[68ch]">
           <Link
             to="/"
-            className="mb-8 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className="muted-link mb-8 inline-flex items-center gap-1 text-sm"
           >
             <span aria-hidden="true">←</span> All posts
           </Link>
 
-          <header className="mb-10 flex flex-col gap-5 border-b border-zinc-200 pb-10 dark:border-zinc-800">
+          <header className="mb-10 flex flex-col gap-5 border-b border-line pb-10">
             <TagList tags={post.tags} />
-            <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
-              {post.title}
-            </h1>
-            {post.summary && <p className="text-xl leading-relaxed text-zinc-600 dark:text-zinc-400">{post.summary}</p>}
+            <h1 className="page-title">{post.title}</h1>
+            {post.summary && <p className="text-xl leading-relaxed text-soft">{post.summary}</p>}
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
-                className="flex size-10 items-center justify-center rounded-full bg-accent-100 font-semibold text-accent-700 dark:bg-accent-950 dark:text-accent-300"
+                className="flex size-10 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent-strong"
               >
                 {site.author
                   .split(' ')
@@ -66,7 +64,7 @@ function PostView({ post, morePosts }: { post: Post; morePosts: Post[] }) {
                   .join('')}
               </span>
               <div>
-                <p className="font-medium text-zinc-900 dark:text-zinc-100">{site.author}</p>
+                <p className="font-medium text-ink">{site.author}</p>
                 <PostMeta post={post} />
               </div>
             </div>
@@ -83,8 +81,8 @@ function PostView({ post, morePosts }: { post: Post; morePosts: Post[] }) {
       </div>
 
       {morePosts.length > 0 && (
-        <section aria-labelledby="more-posts" className="mt-20 border-t border-zinc-200 pt-12 dark:border-zinc-800">
-          <h2 id="more-posts" className="mb-6 font-serif text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+        <section aria-labelledby="more-posts" className="divider mt-20">
+          <h2 id="more-posts" className="section-title mb-6">
             More posts
           </h2>
           <div className="grid gap-6 sm:grid-cols-2">
