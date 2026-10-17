@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Indigo blue (#1e3a8a) rounded square, top-left half lifted by a faint white diagonal. -->
+  <defs>
+    <clipPath id="shape"><rect width="32" height="32" rx="7"/></clipPath>
+  </defs>
+  <g clip-path="url(#shape)">
+    <rect width="32" height="32" fill="#1e3a8a"/>
+    <path d="M0 0H32L0 32Z" fill="#fff" fill-opacity="0.08"/>
+  </g>
+</svg>
