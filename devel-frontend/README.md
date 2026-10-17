@@ -28,7 +28,7 @@ Port 3000 matters: the API's dev CORS config expects it.
 | `src/lib/` | Pure functions, unit tested |
 | `src/types/` | Shared TypeScript types, mirroring the Go API's JSON |
 | `src/data/` | Sample posts (Markdown in `posts/`) until the API serves real ones |
-| `src/config/` | Site name, tagline, author |
+| `src/config/` | Site name, author, GitHub link |
 
 ## API URL
 

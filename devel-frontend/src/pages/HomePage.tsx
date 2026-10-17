@@ -1,6 +1,5 @@
 import { PostCard } from '../components/PostCard';
 import { StatusMessage } from '../components/StatusMessage';
-import { site } from '../config/site';
 import { useAsync } from '../hooks/useAsync';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getPosts } from '../services/posts';
@@ -15,15 +14,8 @@ export function HomePage() {
 
   return (
     <>
-      <section className="mb-12 max-w-2xl sm:mb-16">
-        <p className="eyebrow mb-3">
-          Development diary
-        </p>
-        <h1 className="page-title">
-          {site.tagline}
-        </h1>
-        <p className="mt-4 text-lg text-soft">{site.description}</p>
-      </section>
+      {/* A featured-projects showcase will go above the diary (issue #72). */}
+      <h1 className="eyebrow mb-8">Development diary</h1>
 
       {posts.status === 'loading' && <StatusMessage title="Loading posts…" />}
       {posts.status === 'error' && (
