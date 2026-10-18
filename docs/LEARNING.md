@@ -83,7 +83,7 @@ npm run dev
 ./run-local-dev.sh
 ```
 
-In `devel-frontend/`, `npm test` runs the tests, `npm run lint` checks the code, and `npm run build` type-checks and builds. In `blog-engine/`, run `go test ./...` and `go vet ./...`.
+In `devel-frontend/`, `npm test` runs the tests, `npm run lint` checks the code, `npm run format` formats it with Prettier (your editor can also run Prettier on save; it reads `.prettierrc.json`), and `npm run build` type-checks and builds. In `blog-engine/`, run `go test ./...` and `go vet ./...`.
 
 ## Trace one request
 

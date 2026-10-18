@@ -18,11 +18,7 @@ export function HomePage() {
       <h1 className="eyebrow mb-8">Development diary</h1>
 
       {posts.status === "loading" && <StatusMessage title="Loading posts…" />}
-      {posts.status === "error" && (
-        <StatusMessage title="Couldn't load posts">
-          Try refreshing the page.
-        </StatusMessage>
-      )}
+      {posts.status === "error" && <StatusMessage title="Couldn't load posts">Try refreshing the page.</StatusMessage>}
       {posts.status === "success" &&
         (posts.data.length === 0 ? (
           <StatusMessage title="No posts yet">Check back soon.</StatusMessage>

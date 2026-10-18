@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 /** Loading, error and empty states share one look. */
 export function StatusMessage({ title, children }: { title: string; children?: ReactNode }) {

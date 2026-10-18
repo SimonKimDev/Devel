@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router';
-import { Footer } from './Footer';
-import { Header } from './Header';
+import { useEffect } from "react";
+import { Outlet, useLocation } from "react-router";
+import { Footer } from "./Footer";
+import { Header } from "./Header";
 
 /** The frame around every page: header, the page itself (<Outlet />), footer. */
 export function Layout() {

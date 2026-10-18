@@ -15,9 +15,7 @@ export function PostCard({ post }: { post: Post }) {
           {post.title}
         </Link>
       </h2>
-      {post.summary && (
-        <p className={"line-clamp-3 text-soft"}>{post.summary}</p>
-      )}
+      {post.summary && <p className={"line-clamp-3 text-soft"}>{post.summary}</p>}
       <div className="mt-auto pt-2">
         <PostMeta post={post} />
       </div>

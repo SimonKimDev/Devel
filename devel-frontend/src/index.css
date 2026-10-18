@@ -3,16 +3,16 @@
  * tokens in @theme (`--color-ink` becomes `text-ink`, `bg-ink`, `border-ink`, ...), so
  * changing a token restyles every page. See docs/LEARNING.md, "Styling".
  */
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin '@tailwindcss/typography';
-@import 'highlight.js/styles/github-dark.css';
+@import "highlight.js/styles/github-dark.css";
 
 /* Dark mode follows a `dark` class on <html> (set by public/theme-init.js and useTheme). */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-serif: 'Fraunces Variable', ui-serif, Georgia, serif;
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
   /* The brand palette: Tailwind's blue, whose deep shades are the "indigo blue" of the
      favicon (blue-900 is #1e3a8a). Swap it for any Tailwind palette to recolor the site. */
@@ -117,7 +117,7 @@
   }
 
   /* React Router's NavLink marks the current page with aria-current="page". */
-  .nav-link[aria-current='page'] {
+  .nav-link[aria-current="page"] {
     @apply bg-subtle text-ink;
   }
 

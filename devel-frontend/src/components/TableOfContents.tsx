@@ -1,4 +1,4 @@
-import type { Heading } from '../lib/extractHeadings';
+import type { Heading } from "../lib/extractHeadings";
 
 export function TableOfContents({ headings }: { headings: Heading[] }) {
   if (headings.length < 2) return null;
@@ -8,11 +8,8 @@ export function TableOfContents({ headings }: { headings: Heading[] }) {
       <p className="mb-3 font-semibold text-ink">On this page</p>
       <ul className="space-y-2 border-l border-line">
         {headings.map((heading) => (
-          <li key={heading.id} className={heading.depth === 3 ? 'pl-7' : 'pl-4'}>
-            <a
-              href={`#${heading.id}`}
-              className="muted-link block"
-            >
+          <li key={heading.id} className={heading.depth === 3 ? "pl-7" : "pl-4"}>
+            <a href={`#${heading.id}`} className="muted-link block">
               {heading.text}
             </a>
           </li>

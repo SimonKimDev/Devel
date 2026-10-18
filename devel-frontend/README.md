@@ -11,6 +11,7 @@ New here? [docs/LEARNING.md](../docs/LEARNING.md) maps which file to open for ea
 | `npm run dev` (or `npm start`) | Dev server on http://localhost:3000 with hot reload. |
 | `npm test` | Runs the tests once. `npm run test:watch` reruns them on change. |
 | `npm run lint` | ESLint. |
+| `npm run format` | Formats the code with Prettier (double quotes, 120 columns; see `.prettierrc.json`). `npm run format:check` only reports. |
 | `npm run build` | Type-checks, then builds the static site into `dist/`. |
 | `npm run preview` | Serves `dist/` locally to check a production build. |
 

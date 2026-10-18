@@ -1,36 +1,36 @@
-import { useMemo } from 'react';
-import { Link, useParams } from 'react-router';
-import { Markdown } from '../components/Markdown';
-import { PostCard } from '../components/PostCard';
-import { PostMeta } from '../components/PostMeta';
-import { StatusMessage } from '../components/StatusMessage';
-import { TableOfContents } from '../components/TableOfContents';
-import { TagList } from '../components/TagList';
-import { site } from '../config/site';
-import { useAsync } from '../hooks/useAsync';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { extractHeadings } from '../lib/extractHeadings';
-import { getPostBySlug, getPosts } from '../services/posts';
-import type { Post } from '../types/post';
-import { NotFoundPage } from './NotFoundPage';
+import { useMemo } from "react";
+import { Link, useParams } from "react-router";
+import { Markdown } from "../components/Markdown";
+import { PostCard } from "../components/PostCard";
+import { PostMeta } from "../components/PostMeta";
+import { StatusMessage } from "../components/StatusMessage";
+import { TableOfContents } from "../components/TableOfContents";
+import { TagList } from "../components/TagList";
+import { site } from "../config/site";
+import { useAsync } from "../hooks/useAsync";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { extractHeadings } from "../lib/extractHeadings";
+import { getPostBySlug, getPosts } from "../services/posts";
+import type { Post } from "../types/post";
+import { NotFoundPage } from "./NotFoundPage";
 
 const noKey = undefined;
 
 export function PostPage() {
   // LEARN: `slug` comes from the URL (/posts/:slug in AppRoutes.tsx).
-  const { slug = '' } = useParams();
+  const { slug = "" } = useParams();
   const post = useAsync(getPostBySlug, slug);
   const allPosts = useAsync(getPosts, noKey);
 
-  useDocumentTitle(post.status === 'success' ? post.data?.title : undefined);
+  useDocumentTitle(post.status === "success" ? post.data?.title : undefined);
 
-  if (post.status === 'loading') return <StatusMessage title="Loading post…" />;
-  if (post.status === 'error') {
+  if (post.status === "loading") return <StatusMessage title="Loading post…" />;
+  if (post.status === "error") {
     return <StatusMessage title="Couldn't load this post">Try refreshing the page.</StatusMessage>;
   }
   if (post.data === null) return <NotFoundPage message="There's no post at this address." />;
 
-  const morePosts = allPosts.status === 'success' ? allPosts.data.filter((p) => p.slug !== slug).slice(0, 2) : [];
+  const morePosts = allPosts.status === "success" ? allPosts.data.filter((p) => p.slug !== slug).slice(0, 2) : [];
 
   return <PostView post={post.data} morePosts={morePosts} />;
 }
@@ -53,9 +53,9 @@ function PostView({ post, morePosts }: { post: Post; morePosts: Post[] }) {
             <div className="flex items-center gap-3">
               <span aria-hidden="true" className="avatar">
                 {site.author
-                  .split(' ')
+                  .split(" ")
                   .map((part) => part[0])
-                  .join('')}
+                  .join("")}
               </span>
               <div>
                 <p className="font-medium text-ink">{site.author}</p>

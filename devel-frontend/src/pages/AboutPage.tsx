@@ -1,43 +1,40 @@
-import { site } from '../config/site';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { site } from "../config/site";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 type Member = { name: string; role: string; github?: string };
 
 // LEARN: content that repeats in the same shape is data; the markup maps over it once.
 const team: Member[] = [
   {
-    name: 'Simon Kim',
-    role: 'Software Dev, Microsoft',
-    github: 'https://github.com/SimonKimDev',
+    name: "Simon Kim",
+    role: "Software Dev, Microsoft",
+    github: "https://github.com/SimonKimDev",
   },
   {
-    name: 'Sean Brock',
-    role: 'Software Dev, Meta',
-    github: 'https://github.com/sean-brock',
+    name: "Sean Brock",
+    role: "Software Dev, Meta",
+    github: "https://github.com/sean-brock",
   },
 ];
 
 const initials = (name: string) =>
   name
-    .split(' ')
+    .split(" ")
     .map((part) => part[0])
-    .join('');
+    .join("");
 
 export function AboutPage() {
-  useDocumentTitle('About');
+  useDocumentTitle("About");
 
   return (
     <>
       <section className="reading-width mb-16">
         <p className="eyebrow mb-3">About</p>
-        <h1 className="page-title text-balance">
-          Open source, if we feel like it
-        </h1>
+        <h1 className="page-title text-balance">Open source, if we feel like it</h1>
         <div className="prose article mt-6 sm:prose-lg">
           <p>
-            {site.name} is a loosely coupled indie software dev team. We build
-            projects once in a while when we feel motivated, and we write about
-            them here on this blog because we are full of ourselves.
+            {site.name} is a loosely coupled indie software dev team. We build projects once in a while when we feel
+            motivated, and we write about them here on this blog because we are full of ourselves.
           </p>
           <p>
             This blog is open sourced on <a href={site.githubUrl}>GitHub</a>.

@@ -1,5 +1,5 @@
-import { samplePosts } from '../data/samplePosts';
-import type { Post } from '../types/post';
+import { samplePosts } from "../data/samplePosts";
+import type { Post } from "../types/post";
 
 // LEARN: this is the seam between the UI and the backend. Pages only call these two
 // functions, so they don't know (or care) where posts come from.

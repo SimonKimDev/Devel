@@ -1,7 +1,7 @@
-import ReactMarkdown from 'react-markdown';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeSlug from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
+import ReactMarkdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 
 // LEARN: Markdown → HTML happens in the browser. remark-gfm adds tables and task lists,
 // rehype-slug gives each heading an id (the table of contents links to them), and

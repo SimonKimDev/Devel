@@ -1,4 +1,4 @@
-import GithubSlugger from 'github-slugger';
+import GithubSlugger from "github-slugger";
 
 export interface Heading {
   depth: 2 | 3;
@@ -10,8 +10,8 @@ export interface Heading {
 /** Strips inline Markdown so the text matches what the reader sees. */
 function plainText(markdown: string): string {
   return markdown
-    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // [text](url) and ![alt](src)
-    .replace(/[`*_~]/g, '')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // [text](url) and ![alt](src)
+    .replace(/[`*_~]/g, "")
     .trim();
 }
 
@@ -26,7 +26,7 @@ export function extractHeadings(markdown: string): Heading[] {
   const headings: Heading[] = [];
   let inFence = false;
 
-  for (const line of markdown.split('\n')) {
+  for (const line of markdown.split("\n")) {
     if (/^\s*(```|~~~)/.test(line)) {
       inFence = !inFence;
       continue;
