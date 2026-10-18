@@ -1,8 +1,8 @@
-import { getPostBySlug, getPosts } from './posts';
+import { getPostBySlug, getPosts } from "./posts";
 
-vi.mock('../data/samplePosts', async () => ({ samplePosts: (await import('../test/fixturePosts')).fixturePosts }));
+vi.mock("../data/samplePosts", async () => ({ samplePosts: (await import("../test/fixturePosts")).fixturePosts }));
 
-test('getPosts returns posts newest first', async () => {
+test("getPosts returns posts newest first", async () => {
   const posts = await getPosts();
   const dates = posts.map((p) => p.date_published);
 
@@ -10,9 +10,9 @@ test('getPosts returns posts newest first', async () => {
   expect(dates).toEqual([...dates].sort().reverse());
 });
 
-test('getPostBySlug finds a post or returns null', async () => {
+test("getPostBySlug finds a post or returns null", async () => {
   const [first] = await getPosts();
 
   expect(await getPostBySlug(first.slug)).toEqual(first);
-  expect(await getPostBySlug('no-such-post')).toBeNull();
+  expect(await getPostBySlug("no-such-post")).toBeNull();
 });

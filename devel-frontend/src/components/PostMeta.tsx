@@ -1,6 +1,6 @@
-import { formatDate } from '../lib/formatDate';
-import { readingTime } from '../lib/readingTime';
-import type { Post } from '../types/post';
+import { formatDate } from "../lib/formatDate";
+import { readingTime } from "../lib/readingTime";
+import type { Post } from "../types/post";
 
 /** "Oct 16, 2026 · 3 min read" */
 export function PostMeta({ post }: { post: Post }) {

@@ -1,6 +1,6 @@
-import { Link, NavLink } from 'react-router';
-import { site } from '../../config/site';
-import { ThemeToggle } from '../ThemeToggle';
+import { Link, NavLink } from "react-router";
+import { site } from "../../config/site";
+import { ThemeToggle } from "../ThemeToggle";
 
 // LEARN: NavLink marks the link for the current page with aria-current="page";
 // the .nav-link styles in index.css highlight it from that attribute.

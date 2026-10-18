@@ -1,0 +1,3 @@
+package-lock.json
+# Prose: Prettier would re-pad tables and rewrap posts.
+*.md

@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export type AsyncState<T> =
-  | { status: 'loading' }
-  | { status: 'success'; data: T }
-  | { status: 'error'; error: unknown };
+  { status: "loading" } | { status: "success"; data: T } | { status: "error"; error: unknown };
 
 /**
  * Runs `load(key)` and tracks loading, success and error, re-running when `key` changes.
@@ -18,8 +16,8 @@ export function useAsync<K, T>(load: (key: K) => Promise<T>, key: K): AsyncState
   useEffect(() => {
     let active = true;
     load(key).then(
-      (data) => active && setResult({ key, state: { status: 'success', data } }),
-      (error: unknown) => active && setResult({ key, state: { status: 'error', error } }),
+      (data) => active && setResult({ key, state: { status: "success", data } }),
+      (error: unknown) => active && setResult({ key, state: { status: "error", error } }),
     );
     return () => {
       active = false;
@@ -27,7 +25,7 @@ export function useAsync<K, T>(load: (key: K) => Promise<T>, key: K): AsyncState
   }, [load, key]);
 
   if (result === null || result.key !== key) {
-    return { status: 'loading' };
+    return { status: "loading" };
   }
   return result.state;
 }

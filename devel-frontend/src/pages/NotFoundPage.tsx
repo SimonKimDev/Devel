@@ -1,8 +1,8 @@
-import { Link } from 'react-router';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { Link } from "react-router";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function NotFoundPage({ message = "The page you're looking for doesn't exist." }: { message?: string }) {
-  useDocumentTitle('Not found');
+  useDocumentTitle("Not found");
 
   return (
     <div className="py-16 text-center">
