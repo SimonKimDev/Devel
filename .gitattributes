@@ -3,3 +3,5 @@
 .github/workflows/*.md text eol=lf
 .github/workflows/shared/*.md text eol=lf
 .github/agents/*.md text eol=lf
+# Prettier writes LF; check frontend files out as LF on Windows too, so format:check matches CI.
+devel-frontend/** text=auto eol=lf
