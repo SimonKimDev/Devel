@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import { CodeBlock } from "./CodeBlock";
 
 // LEARN: Markdown → HTML happens in the browser. remark-gfm adds tables and task lists,
 // rehype-slug gives each heading an id (the table of contents links to them), and
@@ -11,7 +12,13 @@ import remarkGfm from "remark-gfm";
 export function Markdown({ children }: { children: string }) {
   return (
     <div className="prose article sm:prose-lg">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug, rehypeHighlight]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSlug, rehypeHighlight]}
+        components={{
+          pre: CodeBlock,
+        }}
+      >
         {children}
       </ReactMarkdown>
     </div>
