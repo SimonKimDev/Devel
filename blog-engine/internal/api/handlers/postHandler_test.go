@@ -322,4 +322,8 @@ func TestGetHealth(t *testing.T) {
 	if got := rec.Header().Get("Content-Type"); !strings.HasPrefix(got, "text/plain") {
 		t.Errorf("expected text/plain content type, got %q", got)
 	}
+
+	if got := rec.Header().Get("Cache-Control"); got != "no-store" {
+		t.Errorf("expected Cache-Control no-store, got %q", got)
+	}
 }
