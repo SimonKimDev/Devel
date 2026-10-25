@@ -23,7 +23,7 @@ internal/
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/api/message` | Always on |
+| GET | `/api/health` | Always on. Returns 200 `ok` if the process is up; doesn't check the database |
 | POST | `/api/blogpost` | Database only |
 | GET | `/api/blogpost` | Database only |
 | GET | `/api/blogpost/{id}` | Database only |
