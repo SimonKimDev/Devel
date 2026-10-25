@@ -53,23 +53,31 @@ func do(handler http.Handler, method, target, body string) *httptest.ResponseRec
 	return rec
 }
 
-func TestNewRouter_MessageRoute(t *testing.T) {
-	rec := do(NewRouter(nil, nil), http.MethodGet, "/api/message", "")
+func TestNewRouter_HealthRoute(t *testing.T) {
+	rec := do(NewRouter(nil, nil), http.MethodGet, "/api/health", "")
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)
 	}
 
-	if !strings.Contains(rec.Body.String(), `"message"`) {
-		t.Errorf("expected a message payload, got %q", rec.Body.String())
+	if rec.Body.String() != "ok" {
+		t.Errorf("expected body %q, got %q", "ok", rec.Body.String())
 	}
 }
 
-func TestNewRouter_MessageRouteRejectsOtherMethods(t *testing.T) {
-	rec := do(NewRouter(nil, nil), http.MethodPost, "/api/message", "")
+func TestNewRouter_HealthRouteRejectsOtherMethods(t *testing.T) {
+	rec := do(NewRouter(nil, nil), http.MethodPost, "/api/health", "")
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("expected 405, got %d", rec.Code)
+	}
+}
+
+func TestNewRouter_MessageRouteRetired(t *testing.T) {
+	rec := do(NewRouter(nil, nil), http.MethodGet, "/api/message", "")
+
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", rec.Code)
 	}
 }
 
@@ -122,7 +130,7 @@ func TestNewRouter_PostRoutes(t *testing.T) {
 func TestNewRouter_AppliesCORS(t *testing.T) {
 	origin := "http://localhost:3000"
 
-	req := httptest.NewRequest(http.MethodGet, "/api/message", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	req.Header.Set("Origin", origin)
 
 	rec := httptest.NewRecorder()

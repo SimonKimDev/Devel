@@ -17,7 +17,7 @@ func serve(t *testing.T, origins []string, method, origin, requestMethod string)
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req := httptest.NewRequest(method, "/api/message", nil)
+	req := httptest.NewRequest(method, "/api/health", nil)
 	if origin != "" {
 		req.Header.Set("Origin", origin)
 	}

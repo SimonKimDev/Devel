@@ -13,7 +13,7 @@ import (
 func NewRouter(postSvc application.BlogPoster, allowedOrigins []string) http.Handler {
 	mux := http.NewServeMux()
 
-	RegisterMessageRoutes(mux)
+	RegisterHealthRoutes(mux)
 
 	if postSvc != nil {
 		RegisterPostRoutes(mux, postSvc)
@@ -22,8 +22,8 @@ func NewRouter(postSvc application.BlogPoster, allowedOrigins []string) http.Han
 	return middleware.CORS(allowedOrigins)(mux)
 }
 
-func RegisterMessageRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/message", handlers.GetMessage)
+func RegisterHealthRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/health", handlers.GetHealth)
 }
 
 // LEARN: this is the URL contract the frontend's services/posts.ts calls. A route here

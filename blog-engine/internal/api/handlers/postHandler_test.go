@@ -309,18 +309,21 @@ func TestDeletePostByID(t *testing.T) {
 	}
 }
 
-func TestGetMessage(t *testing.T) {
+func TestGetHealth(t *testing.T) {
 	rec := httptest.NewRecorder()
-	GetMessage(rec, newRequest(http.MethodGet, "/api/message", "", ""))
+	GetHealth(rec, newRequest(http.MethodGet, "/api/health", "", ""))
 
 	assertStatus(t, rec, http.StatusOK)
 
-	var resp MessageResponse
-	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {
-		t.Fatalf("decode response: %v", err)
+	if got := rec.Body.String(); got != "ok" {
+		t.Errorf("expected body %q, got %q", "ok", got)
 	}
 
-	if resp.Message != Message {
-		t.Errorf("expected message %q, got %q", Message, resp.Message)
+	if got := rec.Header().Get("Content-Type"); !strings.HasPrefix(got, "text/plain") {
+		t.Errorf("expected text/plain content type, got %q", got)
+	}
+
+	if got := rec.Header().Get("Cache-Control"); got != "no-store" {
+		t.Errorf("expected Cache-Control no-store, got %q", got)
 	}
 }
