@@ -5,3 +5,6 @@
 .github/agents/*.md text eol=lf
 # Prettier writes LF; check frontend files out as LF on Windows too, so format:check matches CI.
 devel-frontend/** text=auto eol=lf
+
+# Shell scripts must be LF, or bash (WSL, Linux, macOS) fails on the CR.
+*.sh text eol=lf
