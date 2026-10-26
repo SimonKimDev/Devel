@@ -53,4 +53,4 @@ make test    # or: go test ./...
 make build   # binary in ./bin
 ```
 
-The server listens on port 18080. `run-local-dev.sh` at the repo root starts it together with the frontend.
+The server listens on port 18080. `run-local-dev.sh` at the repo root builds it into `bin/`, waits for `/api/health`, and then starts the frontend. Ctrl+C stops both, and if either one exits, the script stops the other.
